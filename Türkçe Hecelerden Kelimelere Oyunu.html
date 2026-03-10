@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gizemli Hazine Sandığı 🏴‍☠️</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #FFD700;
+    --gold-dark: #E6A800;
+    --teal: #00C9A7;
+    --teal-dark: #00A389;
+    --coral: #FF6B6B;
+    --sand: #FFF0C8;
+    --ocean: #0A1628;
+    --green-glow: #2ECC71;
+    --red-shake: #E74C3C;
+    --font: 'Nunito', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font);
+    background: radial-gradient(ellipse at 30% 20%, #1A3A6B 0%, #0A1628 40%, #0D2040 70%, #071020 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .stars {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none; z-index: 0;
+  }
+  .star {
+    position: absolute; background: white; border-radius: 50%;
+    animation: twinkle var(--dur, 3s) infinite ease-in-out alternate;
+  }
+  @keyframes twinkle {
+    0% { opacity: 0.1; transform: scale(1); }
+    100% { opacity: 0.9; transform: scale(1.4); }
+  }
+
+  .bubble {
+    position: fixed; border-radius: 50%;
+    border: 1px solid rgba(255,215,0,0.1);
+    animation: floatBubble var(--spd, 12s) infinite linear;
+    pointer-events: none; z-index: 0;
+  }
+  @keyframes floatBubble {
+    0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 0.5; }
+    100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
+  }
+
+  .screen {
+    display: none;
+    position: relative; z-index: 10;
+    width: 100%; max-width: 920px;
+    padding: 2vh 3vw;
+    animation: fadeInUp 0.45s ease;
+  }
+  .screen.active { display: flex; flex-direction: column; align-items: center; }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== INTRO ===== */
+  #introScreen { gap: 2.2vh; text-align: center; }
+
+  .intro-deco {
+    font-size: clamp(3rem, 10vw, 6.5rem);
+    filter: drop-shadow(0 4px 18px rgba(255,215,0,0.65));
+    animation: floatAnim 3s ease-in-out infinite alternate;
+  }
+  @keyframes floatAnim {
+    from { transform: translateY(0px) rotate(-4deg); }
+    to { transform: translateY(-14px) rotate(4deg); }
+  }
+
+  .game-title {
+    font-size: clamp(2.2rem, 8vw, 5.5rem);
+    font-weight: 700;
+    color: var(--gold);
+    text-shadow: 0 0 35px rgba(255,215,0,0.8), 0 5px 0 rgba(0,0,0,0.5);
+    line-height: 1.1; letter-spacing: 0.02em;
+  }
+  .game-subtitle {
+    font-size: clamp(1rem, 3.2vw, 1.7rem);
+    color: var(--sand); opacity: 0.85;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  }
+  .deco-row {
+    display: flex; gap: 1.8rem;
+    font-size: clamp(2rem, 6.5vw, 4.5rem);
+    filter: drop-shadow(0 3px 8px rgba(0,0,0,0.4));
+  }
+  .deco-row span:nth-child(1) { animation: floatAnim 2.5s ease-in-out infinite alternate; }
+  .deco-row span:nth-child(2) { animation: floatAnim 3.2s ease-in-out infinite alternate; animation-delay: 0.4s; }
+  .deco-row span:nth-child(3) { animation: floatAnim 2.8s ease-in-out infinite alternate; animation-delay: 0.9s; }
+
+  .sep { width: 70px; height: 3px; background: linear-gradient(90deg, transparent, var(--gold), transparent); border-radius: 2px; }
+
+  /* ===== BUTTONS ===== */
+  .btn-main {
+    font-family: var(--font); font-weight: 700;
+    font-size: clamp(1.3rem, 4.2vw, 2.3rem);
+    color: var(--ocean);
+    background: linear-gradient(145deg, #FFE566 0%, #FFA500 100%);
+    border: none; border-radius: 50px;
+    padding: clamp(0.85rem, 2vh, 1.5rem) clamp(2.2rem, 6vw, 4.5rem);
+    cursor: pointer;
+    box-shadow: 0 7px 0 rgba(0,0,0,0.35), 0 0 45px rgba(255,215,0,0.45);
+    transition: transform 0.12s, box-shadow 0.12s;
+    letter-spacing: 0.04em; position: relative; overflow: hidden;
+  }
+  .btn-main::before {
+    content: ''; position: absolute; top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent);
+    transition: left 0.38s;
+  }
+  .btn-main:hover::before { left: 100%; }
+  .btn-main:hover { transform: translateY(-4px); box-shadow: 0 10px 0 rgba(0,0,0,0.3), 0 0 55px rgba(255,215,0,0.65); }
+  .btn-main:active { transform: translateY(3px); box-shadow: 0 3px 0 rgba(0,0,0,0.3); }
+
+  .btn-next {
+    font-family: var(--font); font-weight: 700;
+    font-size: clamp(1.2rem, 3.8vw, 1.9rem);
+    color: #fff;
+    background: linear-gradient(145deg, var(--teal) 0%, var(--teal-dark) 100%);
+    border: none; border-radius: 50px;
+    padding: clamp(0.75rem, 2vh, 1.25rem) clamp(1.8rem, 5.5vw, 3.5rem);
+    cursor: pointer;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.3), 0 0 30px rgba(0,201,167,0.45);
+    transition: transform 0.12s, box-shadow 0.12s;
+    animation: pulseBtn 1.6s ease-in-out infinite;
+  }
+  @keyframes pulseBtn {
+    0%,100% { box-shadow: 0 6px 0 rgba(0,0,0,0.3), 0 0 20px rgba(0,201,167,0.4); }
+    50% { box-shadow: 0 6px 0 rgba(0,0,0,0.3), 0 0 55px rgba(0,201,167,0.85); }
+  }
+  .btn-next:hover { transform: translateY(-3px); }
+  .btn-next:active { transform: translateY(2px); }
+
+  /* ===== GAME SCREEN ===== */
+  #gameScreen { gap: 1.6vh; }
+
+  .progress-wrap {
+    width: 100%; max-width: 620px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50px; height: clamp(10px, 1.6vh, 20px);
+    overflow: hidden; border: 1px solid rgba(255,215,0,0.2);
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--teal), var(--gold));
+    border-radius: 50px;
+    transition: width 0.65s cubic-bezier(0.34,1.56,0.64,1);
+    box-shadow: 0 0 12px rgba(0,201,167,0.6);
+  }
+  .progress-label {
+    font-size: clamp(0.85rem, 2.3vw, 1.15rem);
+    color: rgba(255,255,255,0.55); font-weight: 500;
+  }
+
+  .hint-card {
+    background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(12px);
+    border: 2px solid rgba(255,215,0,0.3);
+    border-radius: 20px;
+    padding: clamp(0.85rem, 2.2vh, 1.5rem) clamp(1.3rem, 4.5vw, 2.8rem);
+    width: 100%; max-width: 700px; text-align: center;
+  }
+  .hint-label {
+    font-size: clamp(0.75rem, 2vw, 1.05rem);
+    color: var(--gold); text-transform: uppercase;
+    letter-spacing: 0.16em; font-weight: 600; margin-bottom: 0.35em;
+  }
+  .hint-text {
+    font-size: clamp(1.1rem, 3.8vw, 2.1rem);
+    color: var(--sand); font-weight: 600;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.45);
+  }
+
+  .chest-area {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 1.6vh;
+  }
+  .chest-emoji {
+    font-size: clamp(5.5rem, 16vw, 11rem);
+    line-height: 1;
+    filter: drop-shadow(0 8px 22px rgba(255,215,0,0.55));
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), filter 0.4s;
+    animation: chestFloat 4s ease-in-out infinite alternate;
+  }
+  @keyframes chestFloat {
+    from { transform: translateY(0) rotate(-2deg); }
+    to { transform: translateY(-9px) rotate(2deg); }
+  }
+  .chest-emoji.open {
+    animation: chestOpen 0.65s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+  @keyframes chestOpen {
+    0% { transform: scale(1) rotate(-2deg); }
+    50% { transform: scale(1.45) rotate(6deg); filter: drop-shadow(0 0 45px rgba(255,215,0,1)); }
+    100% { transform: scale(1.22) rotate(0deg); filter: drop-shadow(0 0 32px rgba(255,215,0,0.8)); }
+  }
+
+  .target-slots {
+    display: flex; gap: clamp(0.5rem, 2.2vw, 1.3rem);
+    flex-wrap: wrap; justify-content: center;
+  }
+  .slot {
+    width: clamp(65px, 16vw, 125px);
+    height: clamp(52px, 8.5vh, 82px);
+    background: rgba(255,255,255,0.07);
+    border: 3px dashed rgba(255,215,0,0.4);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: clamp(1rem, 3.8vw, 2.1rem);
+    font-weight: 700; color: transparent;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  }
+  .slot.targeted {
+    border-color: rgba(255,215,0,0.75);
+    background: rgba(255,215,0,0.1);
+    transform: scale(1.04);
+    box-shadow: 0 0 22px rgba(255,215,0,0.28);
+  }
+  .slot.filled {
+    border: 3px solid var(--green-glow);
+    background: rgba(46,204,113,0.15);
+    color: #fff; cursor: default;
+    animation: slotPop 0.42s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes slotPop {
+    0% { transform: scale(0.65); }
+    65% { transform: scale(1.14); }
+    100% { transform: scale(1); }
+  }
+  .slot.correct-flash { animation: correctGlow 0.5s ease forwards; }
+  @keyframes correctGlow {
+    0% { box-shadow: 0 0 0 0 rgba(46,204,113,0.8); }
+    50% { box-shadow: 0 0 0 18px rgba(46,204,113,0.28); background: rgba(46,204,113,0.42); }
+    100% { box-shadow: 0 0 0 0 rgba(46,204,113,0); }
+  }
+  .slot.wrong-shake {
+    animation: shakeIt 0.42s ease forwards;
+    border-color: var(--red-shake) !important;
+    background: rgba(231,76,60,0.25) !important;
+  }
+  @keyframes shakeIt {
+    0%,100% { transform: translateX(0); }
+    15% { transform: translateX(-9px) rotate(-2deg); }
+    30% { transform: translateX(9px) rotate(2deg); }
+    45% { transform: translateX(-6px) rotate(-1deg); }
+    60% { transform: translateX(6px) rotate(1deg); }
+    75% { transform: translateX(-3px); }
+    90% { transform: translateX(3px); }
+  }
+
+  .hece-container {
+    display: flex; gap: clamp(0.5rem, 2.2vw, 1.1rem);
+    flex-wrap: wrap; justify-content: center;
+    width: 100%; max-width: 700px;
+  }
+  .hece-btn {
+    font-family: var(--font); font-weight: 700;
+    font-size: clamp(1rem, 3.8vw, 2.1rem);
+    color: var(--ocean);
+    background: linear-gradient(145deg, #FFE866 0%, var(--gold) 100%);
+    border: none; border-radius: 16px;
+    padding: clamp(0.5rem, 1.5vh, 0.95rem) clamp(1rem, 3.2vw, 1.9rem);
+    cursor: pointer;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.32), 0 0 14px rgba(255,215,0,0.2);
+    transition: transform 0.12s, box-shadow 0.12s, background 0.15s, opacity 0.25s, transform 0.25s;
+    letter-spacing: 0.05em;
+    min-width: clamp(58px, 13vw, 105px); text-align: center;
+  }
+  .hece-btn:hover:not(.selected):not(.used) {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 0 rgba(0,0,0,0.3), 0 0 28px rgba(255,215,0,0.55);
+  }
+  .hece-btn:active:not(.used) { transform: translateY(2px); box-shadow: 0 3px 0 rgba(0,0,0,0.3); }
+  .hece-btn.selected {
+    background: linear-gradient(145deg, var(--teal) 0%, var(--teal-dark) 100%);
+    color: #fff;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.3), 0 0 28px rgba(0,201,167,0.65);
+    transform: translateY(-5px) scale(1.1);
+  }
+  .hece-btn.used {
+    opacity: 0; pointer-events: none;
+    transform: scale(0.45) !important;
+  }
+
+  .instruction {
+    font-size: clamp(0.78rem, 2.1vw, 1.05rem);
+    color: rgba(255,255,255,0.42); text-align: center;
+    letter-spacing: 0.03em;
+  }
+
+  /* ===== WIN OVERLAY ===== */
+  #winOverlay {
+    display: none; position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 100; align-items: center; justify-content: center;
+    flex-direction: column; gap: 2.2vh;
+    background: rgba(5,10,25,0.78);
+    backdrop-filter: blur(7px);
+    animation: fadeIn 0.38s ease;
+  }
+  #winOverlay.show { display: flex; }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+  .win-title {
+    font-size: clamp(2.2rem, 9vw, 5.5rem); font-weight: 700;
+    color: var(--gold);
+    text-shadow: 0 0 45px rgba(255,215,0,0.9), 0 5px 0 rgba(0,0,0,0.5);
+    text-align: center;
+    animation: winBounce 0.65s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes winBounce {
+    0% { transform: scale(0) rotate(-10deg); }
+    60% { transform: scale(1.18) rotate(3deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+  .win-word {
+    font-size: clamp(1.5rem, 5.5vw, 3.8rem);
+    color: var(--teal); font-weight: 600;
+    text-shadow: 0 0 22px rgba(0,201,167,0.7);
+  }
+  .treasure-burst {
+    font-size: clamp(3rem, 12vw, 8rem);
+    animation: burst 0.72s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes burst {
+    0% { transform: scale(0) rotate(-22deg); opacity: 0; }
+    60% { transform: scale(1.35) rotate(12deg); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+
+  /* ===== END SCREEN ===== */
+  #endScreen { gap: 2.8vh; text-align: center; }
+  .end-emoji {
+    font-size: clamp(4.5rem, 16vw, 10rem);
+    filter: drop-shadow(0 0 32px rgba(255,215,0,0.85));
+    animation: floatAnim 2.5s ease-in-out infinite alternate;
+  }
+  .end-title {
+    font-size: clamp(1.8rem, 6.5vw, 4.5rem); font-weight: 700;
+    color: var(--gold);
+    text-shadow: 0 0 32px rgba(255,215,0,0.75), 0 4px 0 rgba(0,0,0,0.45);
+    line-height: 1.2;
+  }
+  .end-subtitle {
+    font-size: clamp(1rem, 3.2vw, 1.9rem);
+    color: var(--sand); opacity: 0.85;
+  }
+  .btn-restart {
+    font-family: var(--font); font-weight: 600;
+    font-size: clamp(1rem, 3.2vw, 1.6rem);
+    color: var(--ocean);
+    background: linear-gradient(145deg, #FFE566 0%, #FFA500 100%);
+    border: none; border-radius: 50px;
+    padding: clamp(0.65rem, 1.6vh, 1.1rem) clamp(1.6rem, 4.5vw, 2.8rem);
+    cursor: pointer;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.3), 0 0 28px rgba(255,215,0,0.4);
+    transition: transform 0.12s, box-shadow 0.12s;
+  }
+  .btn-restart:hover { transform: translateY(-3px); }
+  .btn-restart:active { transform: translateY(2px); }
+
+  /* ===== CONFETTI ===== */
+  .confetti-piece {
+    position: fixed; top: -20px;
+    animation: confettiFall var(--fall-dur, 3s) var(--fall-delay, 0s) linear forwards;
+    pointer-events: none; z-index: 200; border-radius: 3px;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg) translateX(0); opacity: 1; }
+    80% { opacity: 1; }
+    100% { transform: translateY(108vh) rotate(var(--spin, 720deg)) translateX(var(--drift, 60px)); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stars" id="starsContainer"></div>
+<div style="position:fixed;bottom:12px;right:16px;z-index:999;font-family:'Nunito',sans-serif;font-size:0.72rem;color:rgba(255,255,255,0.28);letter-spacing:0.06em;pointer-events:none;user-select:none;">Sinan İnce 2026</div>
+
+<!-- ===== INTRO SCREEN ===== -->
+<div class="screen active" id="introScreen">
+  <div class="intro-deco">🏴‍☠️</div>
+  <h1 class="game-title">Gizemli<br>Hazine Sandığı</h1>
+  <div class="sep"></div>
+  <p class="game-subtitle">Heceleri birleştir, hazineyi bul!</p>
+  <div class="deco-row">
+    <span>🌴</span><span>🗺️</span><span>⚓</span>
+  </div>
+  <button class="btn-main" onclick="startGame()">⚔️ Oyuna Başla!</button>
+</div>
+
+<!-- ===== GAME SCREEN ===== -->
+<div class="screen" id="gameScreen">
+  <div class="progress-wrap">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+  <p class="progress-label" id="progressLabel">Kelime 1 / ?</p>
+
+  <div class="hint-card">
+    <div class="hint-label">🔍 İpucu</div>
+    <div class="hint-text" id="hintText">–</div>
+  </div>
+
+  <div class="chest-area">
+    <div class="chest-emoji" id="chestEmoji">🧰</div>
+    <div class="target-slots" id="targetSlots"></div>
+  </div>
+
+  <div class="hece-container" id="heceContainer"></div>
+  <p class="instruction">Bir heceye tıkla 👆 Sonra boş kutuya yerleştir</p>
+</div>
+
+<!-- ===== WIN OVERLAY ===== -->
+<div id="winOverlay">
+  <div class="treasure-burst" id="treasureBurst">💎</div>
+  <div class="win-title">🎉 Harika! 🎉</div>
+  <div class="win-word" id="winWordDisplay"></div>
+  <button class="btn-next" id="nextBtn" onclick="nextWord()">➡️ Sonraki Kelime</button>
+</div>
+
+<!-- ===== END SCREEN ===== -->
+<div class="screen" id="endScreen" style="position:relative;z-index:200;">
+  <div class="end-emoji">🏆</div>
+  <h2 class="end-title">Tebrikler!<br>Tüm Hazineleri<br>Buldunuz!</h2>
+  <div class="deco-row">
+    <span>🥇</span><span>💎</span><span>🌟</span>
+  </div>
+  <p class="end-subtitle">Gerçek bir hazine avcısısın! 🏴‍☠️</p>
+  <button class="btn-restart" onclick="restartGame()">🔄 Tekrar Oyna</button>
+</div>
+
+<script>
+/* ================================================================
+   TÜM KELİME HAVUZU — 50 kelime, 5 kategori
+   Her oyunda OYUN_KELİME_SAYISI kadar rastgele kelime seçilir.
+   Yeni kelime eklemek için tumKelimeler dizisine nesne ekleyin.
+   ================================================================ */
+const OYUN_KELİME_SAYISI = 10;
+
+const tumKelimeler = [
+  /* ── Okul, Meslekler ve Eşyalar ── */
+  { ipucu: 'Okulda bize yeni bilgiler öğreten kişi', heceler: ['ÖĞ','RET','MEN'], celdiriciler: ['BAŞ','KAN'] },
+  { ipucu: 'Hasta olduğumuzda bizi tedavi eden kişi', heceler: ['DOK','TOR'], celdiriciler: ['HEM','ŞİR'] },
+  { ipucu: 'Binaları ve yolları planlayan meslek sahibi', heceler: ['MÜ','HEN','DİS'], celdiriciler: ['Mİ','MAR'] },
+  { ipucu: 'İçinde hikayeler ve bilgiler olan, sayfalı kaynak', heceler: ['Kİ','TAP'], celdiriciler: ['DEF','TER'] },
+  { ipucu: 'Evimizden dışarıyı izlememizi sağlayan camlı bölüm', heceler: ['PEN','CE','RE'], celdiriciler: ['KA','PI'] },
+  { ipucu: 'Dinlediğimizde hoşumuza giden seslerin uyumu, şarkı', heceler: ['MÜ','ZİK'], celdiriciler: ['SA','NAT'] },
+  { ipucu: 'Dışarı çıkarken ayaklarımıza giydiğimiz eşya', heceler: ['A','YAK','KA','BI'], celdiriciler: ['ÇO','RAP'] },
+  { ipucu: 'Evde çizgi film veya belgesel izlediğimiz ekranlı araç', heceler: ['TE','LE','VİZ','YON'], celdiriciler: ['RAD','YO'] },
+  { ipucu: 'İnternete girmek için kullandığımız teknolojik cihaz', heceler: ['BİL','Gİ','SA','YAR'], celdiriciler: ['TAB','LET'] },
+  { ipucu: 'Tellerine vurularak çalınan, ahşap bir enstrüman', heceler: ['Gİ','TAR'], celdiriciler: ['DA','VUL'] },
+
+  /* ── Hayvanlar Alemi ── */
+  { ipucu: 'Rengarenk kanatları olan, çiçeklere konan böcek', heceler: ['KE','LE','BEK'], celdiriciler: ['SİN','EK'] },
+  { ipucu: 'Boynu çok uzun olan, yaprak yiyen hayvan', heceler: ['ZÜ','RA','FA'], celdiriciler: ['FİL','DEV'] },
+  { ipucu: 'Zıplayarak ilerleyen, yavrusunu kesesinde taşıyan hayvan', heceler: ['KAN','GU','RU'], celdiriciler: ['KO','A'] },
+  { ipucu: 'Nehirlerde yaşayan, büyük dişleri olan sürüngen', heceler: ['TİM','SAH'], celdiriciler: ['KER','TEN'] },
+  { ipucu: 'Kırmızı kabuğunda siyah benekler olan sevimli böcek', heceler: ['U','ĞUR','BÖ','CE','Ğİ'], celdiriciler: ['A','RI'] },
+  { ipucu: 'Söylediklerimizi tekrar edebilen renkli kuş', heceler: ['PA','PA','ĞAN'], celdiriciler: ['MAR','TI'] },
+  { ipucu: 'Kendi ağırlığından fazlasını taşıyan çalışkan böcek', heceler: ['KA','RIN','CA'], celdiriciler: ['BİT','HA'] },
+  { ipucu: 'Evde balık beslemek için kullandığımız su dolu cam kutu', heceler: ['AK','VAR','YUM'], celdiriciler: ['HA','VUZ'] },
+  { ipucu: 'Evimizi koruyan, havlayan sadık dostumuz', heceler: ['KÖ','PEK'], celdiriciler: ['KE','Dİ'] },
+  { ipucu: 'Çiçeklerden polen toplayıp bal yapan böcek', heceler: ['A','RI'], celdiriciler: ['SİN','EK'] },
+
+  /* ── Doğa, Uzay ve Coğrafya ── */
+  { ipucu: 'Dünyamızı aydınlatan ve ısıtan büyük yıldız', heceler: ['GÜ','NEŞ'], celdiriciler: ['A','YAY'] },
+  { ipucu: 'Gökyüzünde pamuk gibi süzülen beyaz kütle', heceler: ['BU','LUT'], celdiriciler: ['SİS','YAĞ'] },
+  { ipucu: 'Gezegenlerin ve yıldızların bulunduğu sonsuz boşluk', heceler: ['U','ZAY'], celdiriciler: ['GÖK','YER'] },
+  { ipucu: 'Üzerinde yaşadığımız yusyuvarlak gezegen', heceler: ['DÜN','YA'], celdiriciler: ['MAR','SA'] },
+  { ipucu: 'Geceleri gökyüzünde yuvarlak ve parlak görünen', heceler: ['DO','LU','NAY'], celdiriciler: ['YIL','DIZ'] },
+  { ipucu: 'Karadeniz\u2019de kömürüyle ünlü ilimiz', heceler: ['ZON','GUL','DAK'], celdiriciler: ['SAM','SUN'] },
+  { ipucu: 'Sonbahar gelince ağaçlardan sararıp dökülen parça', heceler: ['YAP','RAK'], celdiriciler: ['Çİ','ÇEK'] },
+  { ipucu: 'Yağmur yağarken gökyüzünde çakan parlak ışık', heceler: ['ŞİM','ŞEK'], celdiriciler: ['GÜR','LEY'] },
+  { ipucu: 'Yağmurdan sonra güneşte çıkan yedi renkli köprü', heceler: ['GÖK','KU','ŞA','ĞI'], celdiriciler: ['REN','GAR'] },
+  { ipucu: 'Bir sürü ağacın ve hayvanın bir arada bulunduğu yer', heceler: ['OR','MAN'], celdiriciler: ['DE','RE'] },
+
+  /* ── Yiyecekler ve Mutfak ── */
+  { ipucu: 'Yazın yediğimiz çok soğuk ve tatlı yiyecek', heceler: ['DON','DUR','MA'], celdiriciler: ['HEL','VA'] },
+  { ipucu: 'Kakaodan yapılan, tatlı ve kahverengi yiyecek', heceler: ['Çİ','KO','LA','TA'], celdiriciler: ['ŞE','KER'] },
+  { ipucu: 'Uzun veya fiyonk şeklinde, haşlanarak yapılan yemek', heceler: ['MA','KAR','NA'], celdiriciler: ['Pİ','LAV'] },
+  { ipucu: 'Kahvaltıda yediğimiz, sütten yapılan besin', heceler: ['PEY','NİR'], celdiriciler: ['TER','YAĞ'] },
+  { ipucu: 'Salataya doğradığımız kırmızı, sulu sebze', heceler: ['DO','MA','TES'], celdiriciler: ['SO','ĞAN'] },
+  { ipucu: 'Kışın suyunu sıkıp içtiğimiz C vitamini deposu meyve', heceler: ['POR','TA','KAL'], celdiriciler: ['LİM','ON'] },
+  { ipucu: 'Yemek yerken kullandığımız üç uçlu eşya', heceler: ['ÇA','TAL'], celdiriciler: ['KA','ŞIK'] },
+  { ipucu: 'Su veya ayran içmek için kullandığımız kap', heceler: ['BAR','DAK'], celdiriciler: ['FİN','CAN'] },
+  { ipucu: 'Ocakta yemek pişirmek için kullanılan derin metal kap', heceler: ['TEN','CE','RE'], celdiriciler: ['TA','VA'] },
+  { ipucu: 'Sabahları uyanmak için kurduğumuz zilli alet', heceler: ['SA','AT'], celdiriciler: ['TAK','VİM'] },
+
+  /* ── Kavramlar, Etkinlikler ve Mekanlar ── */
+  { ipucu: 'Eğlenmek için kurallarla oynadığımız etkinlik', heceler: ['O','YUN'], celdiriciler: ['YA','RIŞ'] },
+  { ipucu: 'Uzaktaki birini tekrar görme isteği, hasret duygusu', heceler: ['ÖZ','LEM'], celdiriciler: ['SEV','Gİ'] },
+  { ipucu: 'Rüzgarlı havada iple gökyüzünde uçurduğumuz oyuncak', heceler: ['U','ÇURT','MA'], celdiriciler: ['TOP','SAL'] },
+  { ipucu: 'Pedallarını çevirerek sürdüğümüz iki tekerlekli taşıt', heceler: ['Bİ','SİK','LET'], celdiriciler: ['MO','TOR'] },
+  { ipucu: 'Yangınları söndürmek için yardıma gelen kırmızı araç', heceler: ['İT','FA','İ','YE'], celdiriciler: ['AM','BÜ'] },
+  { ipucu: 'İçine çok sayıda yolcu alan büyük taşıt', heceler: ['O','TO','BÜS'], celdiriciler: ['TAK','Sİ'] },
+  { ipucu: 'Sayılarla işlem yapmayı öğrendiğimiz okul dersi', heceler: ['MA','TE','MA','TİK'], celdiriciler: ['FEN','BİL'] },
+  { ipucu: 'İçinde binlerce kitap bulunan sessiz çalışma yeri', heceler: ['KÜ','TÜP','HA','NE'], celdiriciler: ['MÜ','ZE'] },
+  { ipucu: 'Patlamış mısır yiyerek dev ekranda film izlediğimiz yer', heceler: ['Sİ','NE','MA'], celdiriciler: ['Tİ','YAT'] },
+  { ipucu: 'Haftanın okula başladığımız ilk günü', heceler: ['PA','ZAR','TE','Sİ'], celdiriciler: ['SA','LI'] }
+];
+
+/* Daha önce oynanan kelimelerin ipuçlarını tutan set */
+let oynanmisKelimeler = new Set();
+
+/* Kelime havuzundan rastgele N kelime seç — daha önce oynanmış olanları atla */
+function rastgeleKelimeSec(havuz, sayi) {
+  let kalan = havuz.filter(k => !oynanmisKelimeler.has(k.ipucu));
+  if (kalan.length < sayi) {
+    oynanmisKelimeler.clear();
+    kalan = [...havuz];
+  }
+  shuffle(kalan);
+  const secilen = kalan.slice(0, Math.min(sayi, kalan.length));
+  secilen.forEach(k => oynanmisKelimeler.add(k.ipucu));
+  return secilen;
+}
+
+/* Aktif oyun listesi — startGame'de doldurulur */
+let oyunVerisi = [];
+
+/* ==================== WEB AUDIO API ==================== */
+let audioCtx = null;
+function getCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function tone(freq, type, dur, vol = 0.38, delay = 0) {
+  try {
+    const ctx = getCtx();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = type;
+    o.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+    g.gain.setValueAtTime(vol, ctx.currentTime + delay);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + dur);
+    o.start(ctx.currentTime + delay);
+    o.stop(ctx.currentTime + delay + dur + 0.05);
+  } catch(e) {}
+}
+
+function soundClick() { tone(900, 'sine', 0.07, 0.28); }
+
+function soundCorrect() {
+  tone(523, 'sine', 0.11, 0.35, 0.00);
+  tone(659, 'sine', 0.11, 0.35, 0.11);
+  tone(784, 'sine', 0.17, 0.42, 0.22);
+}
+
+function soundWrong() {
+  tone(180, 'sawtooth', 0.22, 0.52, 0.00);
+  tone(120, 'sawtooth', 0.18, 0.40, 0.13);
+}
+
+function soundFanfare() {
+  const m = [
+    [523,0.00],[659,0.14],[784,0.28],[1047,0.42],
+    [784,0.60],[1047,0.75],[1319,0.95]
+  ];
+  m.forEach(([f,t]) => tone(f, 'sine', 0.24, 0.45, t));
+  [0,0.14,0.28,0.42,0.56,0.70,0.84,0.98].forEach(t => tone(80,'triangle',0.07,0.28,t));
+}
+
+/* ==================== OYUN DURUMU ==================== */
+let currentIdx = 0;
+let selectedHece = null;
+let filledSlots = [];
+let slotEls = [];
+
+/* ==================== EKRANLAR ==================== */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startGame() {
+  soundClick();
+  currentIdx = 0;
+  oyunVerisi = rastgeleKelimeSec(tumKelimeler, OYUN_KELİME_SAYISI);
+  showScreen('gameScreen');
+  loadWord(currentIdx);
+}
+
+function restartGame() {
+  soundClick();
+  currentIdx = 0;
+  oyunVerisi = rastgeleKelimeSec(tumKelimeler, OYUN_KELİME_SAYISI);
+  showScreen('gameScreen');
+  loadWord(currentIdx);
+}
+
+/* ==================== KELİME YÜKLE ==================== */
+function loadWord(idx) {
+  const d = oyunVerisi[idx];
+  filledSlots = new Array(d.heceler.length).fill(false);
+  selectedHece = null;
+
+  const pct = Math.round((idx / oyunVerisi.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent =
+    `Kelime ${idx + 1} / ${oyunVerisi.length}`;
+
+  document.getElementById('hintText').textContent = d.ipucu;
+
+  const chest = document.getElementById('chestEmoji');
+  chest.textContent = '🧰';
+  chest.classList.remove('open');
+
+  const slotsEl = document.getElementById('targetSlots');
+  slotsEl.innerHTML = '';
+  slotEls = [];
+  d.heceler.forEach((_, i) => {
+    const s = document.createElement('div');
+    s.className = 'slot targeted';
+    s.dataset.index = i;
+    s.addEventListener('click', () => onSlotClick(i));
+    slotsEl.appendChild(s);
+    slotEls.push(s);
+  });
+
+  const all = [...d.heceler, ...d.celdiriciler];
+  shuffle(all);
+  const container = document.getElementById('heceContainer');
+  container.innerHTML = '';
+  all.forEach(h => {
+    const b = document.createElement('button');
+    b.className = 'hece-btn';
+    b.textContent = h;
+    b.dataset.hece = h;
+    b.addEventListener('click', () => onHeceClick(b));
+    container.appendChild(b);
+  });
+}
+
+/* ==================== TIKLAMALAR ==================== */
+function onHeceClick(btn) {
+  if (btn.classList.contains('used')) return;
+  soundClick();
+  if (selectedHece && selectedHece.el === btn) {
+    btn.classList.remove('selected');
+    selectedHece = null;
+    return;
+  }
+  if (selectedHece) selectedHece.el.classList.remove('selected');
+  btn.classList.add('selected');
+  selectedHece = { text: btn.dataset.hece, el: btn };
+}
+
+function onSlotClick(i) {
+  if (filledSlots[i]) return;
+  if (!selectedHece) return;
+
+  const d = oyunVerisi[currentIdx];
+  const nextEmpty = filledSlots.indexOf(false);
+
+  if (i !== nextEmpty) {
+    slotEls[i].classList.add('wrong-shake');
+    soundWrong();
+    setTimeout(() => slotEls[i].classList.remove('wrong-shake'), 480);
+    selectedHece.el.classList.remove('selected');
+    selectedHece = null;
+    return;
+  }
+
+  const correctHece = d.heceler[i];
+  const slot = slotEls[i];
+
+  if (selectedHece.text === correctHece) {
+    soundCorrect();
+    slot.textContent = selectedHece.text;
+    slot.classList.remove('targeted');
+    slot.classList.add('filled', 'correct-flash');
+    filledSlots[i] = true;
+    selectedHece.el.classList.add('used');
+    selectedHece = null;
+    if (filledSlots.every(Boolean)) setTimeout(triggerWin, 420);
+  } else {
+    soundWrong();
+    slot.classList.add('wrong-shake');
+    setTimeout(() => slot.classList.remove('wrong-shake'), 480);
+    selectedHece.el.classList.remove('selected');
+    selectedHece = null;
+  }
+}
+
+/* ==================== KAZANMA ==================== */
+function triggerWin() {
+  soundFanfare();
+  const chest = document.getElementById('chestEmoji');
+  chest.classList.add('open');
+  chest.textContent = '💰';
+
+  const word = oyunVerisi[currentIdx].heceler.join('');
+  document.getElementById('winWordDisplay').textContent = '✨ ' + word + ' ✨';
+
+  const gems = ['💎','💰','🌟','👑','🔮','🎁','🏅'];
+  document.getElementById('treasureBurst').textContent =
+    gems[Math.floor(Math.random() * gems.length)];
+
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.textContent = (currentIdx >= oyunVerisi.length - 1)
+    ? '🏆 Oyunu Bitir!' : '➡️ Sonraki Kelime';
+
+  document.getElementById('winOverlay').classList.add('show');
+  spawnConfetti(70);
+}
+
+function nextWord() {
+  soundClick();
+  document.getElementById('winOverlay').classList.remove('show');
+  currentIdx++;
+  if (currentIdx >= oyunVerisi.length) {
+    // Kısa gecikme: overlay tamamen kapandıktan sonra bitiş ekranı aç
+    setTimeout(function() {
+      showScreen('endScreen');
+      spawnConfetti(100);
+      soundFanfare();
+    }, 200);
+  } else {
+    loadWord(currentIdx);
+  }
+}
+
+/* ==================== KONFETİ ==================== */
+function spawnConfetti(count) {
+  const colors = ['#FFD700','#FF6B6B','#00C9A7','#A07DD4','#FF9F43','#FFFFFF','#48DBFB','#FF9FF3'];
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.setProperty('--fall-dur', (2.2 + Math.random() * 2.8) + 's');
+    el.style.setProperty('--fall-delay', (Math.random() * 1.4) + 's');
+    el.style.setProperty('--spin', (Math.random() > 0.5 ? '' : '-') + (360 + Math.floor(Math.random() * 360)) + 'deg');
+    el.style.setProperty('--drift', (Math.random() > 0.5 ? '' : '-') + Math.floor(Math.random() * 130) + 'px');
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.width = (8 + Math.random() * 11) + 'px';
+    el.style.height = (10 + Math.random() * 11) + 'px';
+    el.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 5500);
+  }
+}
+
+/* ==================== YARDIMCI ==================== */
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+/* ==================== ARKA PLAN ==================== */
+(function buildBg() {
+  const sc = document.getElementById('starsContainer');
+  for (let i = 0; i < 90; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const sz = 1 + Math.random() * 2.8;
+    s.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${2+Math.random()*4}s;animation-delay:${Math.random()*5}s;`;
+    sc.appendChild(s);
+  }
+  const cols = ['rgba(255,215,0,0.055)','rgba(0,201,167,0.045)','rgba(160,125,212,0.055)'];
+  for (let i = 0; i < 14; i++) {
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    const sz = 35 + Math.random() * 130;
+    b.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*3)]};--spd:${11+Math.random()*18}s;animation-delay:${Math.random()*16}s;`;
+    document.body.appendChild(b);
+  }
+})();
+</script>
+</body>
+</html>

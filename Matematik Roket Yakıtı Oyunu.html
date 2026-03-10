@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uzay Gemisi Matematik Macerası</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sky: #06081a;
+  --accent: #FFD600;
+  --green: #00E676;
+  --pink: #FF4081;
+  --blue: #00B0FF;
+  --orange: #FF6D00;
+  --purple: #7C4DFF;
+  --card: rgba(255,255,255,0.06);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Nunito',sans-serif;
+  background:var(--sky);
+  color:white;
+  min-height:100vh;
+  overflow:hidden;
+  position:relative;
+}
+
+#stars { position:fixed; inset:0; pointer-events:none; z-index:0; }
+.star-dot {
+  position:absolute; border-radius:50%; background:white;
+  animation:twinkle var(--d) ease-in-out infinite alternate;
+}
+@keyframes twinkle { from{opacity:.1;transform:scale(.8)} to{opacity:1;transform:scale(1.2)} }
+
+.screen {
+  position:fixed; inset:0; z-index:10;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:20px;
+  transition:opacity .5s, transform .5s;
+}
+.screen.hidden { opacity:0; pointer-events:none; transform:scale(.97); }
+
+/* ===== START SCREEN ===== */
+#start-screen {
+  background:radial-gradient(ellipse at 50% 30%, rgba(124,77,255,.12) 0%, transparent 70%);
+  gap:0;
+}
+.start-logo {
+  font-size:clamp(3rem,7vw,5.5rem);
+  animation:logo-float 3s ease-in-out infinite;
+  margin-bottom:8px;
+  filter:drop-shadow(0 0 30px rgba(255,214,0,.5));
+}
+@keyframes logo-float { 0%,100%{transform:translateY(0) rotate(-5deg)} 50%{transform:translateY(-16px) rotate(-5deg)} }
+.start-title {
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(1.8rem,4.5vw,3.5rem);
+  background:linear-gradient(135deg, var(--accent), var(--pink), var(--blue));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  text-align:center; line-height:1.1; margin-bottom:6px;
+}
+.start-subtitle {
+  font-size:clamp(.75rem,1.6vw,1rem);
+  color:rgba(255,255,255,.5);
+  font-weight:700; letter-spacing:2px; text-transform:uppercase;
+  margin-bottom:28px; text-align:center;
+}
+.planet-select-label {
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(1rem,2vw,1.4rem);
+  color:rgba(255,255,255,.7);
+  margin-bottom:16px; text-align:center;
+}
+.planets-row {
+  display:flex; gap:clamp(12px,2.5vw,28px); align-items:stretch;
+  margin-bottom:28px; flex-wrap:wrap; justify-content:center;
+}
+.planet-card {
+  background:var(--card);
+  border:2px solid rgba(255,255,255,.1);
+  border-radius:22px;
+  padding:clamp(14px,2vw,24px) clamp(18px,2.5vw,32px);
+  cursor:pointer;
+  transition:all .25s cubic-bezier(.34,1.56,.64,1);
+  text-align:center;
+  min-width:clamp(120px,18vw,170px);
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  backdrop-filter:blur(10px);
+  position:relative; overflow:hidden;
+}
+.planet-card::after {
+  content:''; position:absolute; inset:0;
+  background:var(--pc-glow); opacity:0;
+  transition:opacity .3s; border-radius:20px;
+}
+.planet-card:hover { transform:translateY(-7px) scale(1.04); border-color:rgba(255,255,255,.25); }
+.planet-card:hover::after { opacity:1; }
+.planet-card.selected {
+  border-color:var(--pc-color);
+  box-shadow:0 0 28px var(--pc-color), inset 0 0 16px rgba(255,255,255,.04);
+  transform:translateY(-5px) scale(1.05);
+}
+.pc-moon   { --pc-color:#C8D8E8; --pc-glow:radial-gradient(ellipse,rgba(200,216,232,.1),transparent); }
+.pc-mars   { --pc-color:#E8643A; --pc-glow:radial-gradient(ellipse,rgba(232,100,58,.1),transparent); }
+.pc-saturn { --pc-color:#F0C060; --pc-glow:radial-gradient(ellipse,rgba(240,192,96,.1),transparent); }
+.planet-emoji { font-size:clamp(2.2rem,4.5vw,3.2rem); line-height:1; }
+.planet-name {
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(1rem,2vw,1.4rem);
+  color:var(--pc-color);
+}
+.planet-range {
+  font-size:clamp(.65rem,1.2vw,.8rem);
+  color:rgba(255,255,255,.5); font-weight:700; letter-spacing:.5px;
+  background:rgba(255,255,255,.08); padding:3px 10px; border-radius:20px;
+}
+.planet-badge {
+  font-size:clamp(.6rem,1.1vw,.72rem);
+  font-weight:800; letter-spacing:.5px; text-transform:uppercase;
+  padding:3px 10px; border-radius:20px;
+  background:rgba(255,255,255,.1); color:var(--pc-color);
+}
+.btn-start {
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(1.2rem,2.2vw,1.7rem);
+  padding:clamp(12px,2vh,18px) clamp(44px,7vw,80px);
+  background:linear-gradient(135deg, var(--accent), var(--orange));
+  color:#1a0800; border:none; border-radius:50px;
+  cursor:pointer;
+  box-shadow:0 8px 28px rgba(255,214,0,.35);
+  transition:all .2s; animation:pulse-btn 2s ease-in-out infinite;
+}
+@keyframes pulse-btn {
+  0%,100%{box-shadow:0 8px 28px rgba(255,214,0,.35), 0 0 0 0 rgba(255,214,0,.2)}
+  50%{box-shadow:0 8px 36px rgba(255,214,0,.55), 0 0 0 14px rgba(255,214,0,.0)}
+}
+.btn-start:hover { transform:scale(1.05) translateY(-3px); }
+.btn-start:disabled { opacity:.35; cursor:not-allowed; animation:none; }
+
+/* ===== GAME SCREEN ===== */
+#game-screen {
+  flex-direction:column;
+  justify-content:space-between;
+  padding:clamp(8px,1.5vh,16px) clamp(10px,2vw,18px);
+  gap:clamp(6px,1.2vh,12px);
+}
+
+.top-bar {
+  width:100%; display:flex;
+  align-items:flex-start; gap:clamp(8px,1.5vw,14px);
+}
+
+/* ROCKET PANEL */
+.rocket-panel {
+  display:flex; flex-direction:column; align-items:center;
+  gap:4px; flex-shrink:0;
+}
+.rocket-ship {
+  font-size:clamp(2.8rem,5.5vw,4.2rem);
+  line-height:1;
+  filter:drop-shadow(0 0 12px rgba(0,176,255,.7));
+  transition:all .3s;
+}
+.rocket-ship.launching {
+  animation:rocket-launch 2.2s ease-in forwards;
+}
+@keyframes rocket-launch {
+  0%  {transform:translateY(0) scale(1) rotate(0deg)}
+  15% {transform:translateY(-12px) scale(1.2) rotate(-2deg)}
+  100%{transform:translateY(-130vh) scale(.4) rotate(0deg)}
+}
+
+.fuel-tank {
+  display:flex; flex-direction:column-reverse;
+  gap:clamp(3px,0.5vh,5px); align-items:center;
+}
+.fuel-seg {
+  width:clamp(36px,5vw,52px);
+  height:clamp(16px,2.4vh,24px);
+  border-radius:6px;
+  background:rgba(255,255,255,.07);
+  border:1.5px solid rgba(255,255,255,.12);
+  transition:all .4s cubic-bezier(.34,1.56,.64,1);
+  position:relative; overflow:hidden;
+}
+.fuel-seg.filled {
+  background:linear-gradient(180deg, #FFD600 0%, #FF6D00 100%);
+  border-color:#FFD600;
+  box-shadow:0 0 8px rgba(255,214,0,.5);
+}
+.fuel-seg.filled::after {
+  content:''; position:absolute; top:0; left:0; right:0; height:40%;
+  background:rgba(255,255,255,.25); border-radius:3px 3px 0 0;
+}
+.fuel-seg.losing {
+  animation:seg-loss .4s ease;
+}
+@keyframes seg-loss {
+  0%{background:rgba(255,82,82,.6); border-color:#FF5252; transform:scale(1.1)}
+  100%{background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.12); transform:scale(1)}
+}
+.fuel-label {
+  font-size:clamp(.6rem,1vw,.75rem); font-weight:800;
+  color:rgba(255,255,255,.4); letter-spacing:.5px; text-transform:uppercase;
+}
+
+.header-info { flex:1; }
+.game-title-sm {
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(.9rem,2vw,1.4rem);
+  background:linear-gradient(135deg,var(--accent),var(--pink));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.planet-indicator {
+  display:inline-flex; align-items:center; gap:6px;
+  background:rgba(255,255,255,.07); border:1.5px solid rgba(255,255,255,.11);
+  border-radius:20px; padding:4px 12px; margin-top:5px;
+}
+.pi-text {
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(.7rem,1.4vw,.95rem);
+}
+.score-pill {
+  display:inline-flex; align-items:center; gap:6px;
+  background:rgba(255,255,255,.07); border:1.5px solid rgba(255,255,255,.11);
+  border-radius:20px; padding:4px 12px; margin-top:5px; margin-left:6px;
+}
+.score-pill span { font-family:'Fredoka One',cursive; font-size:clamp(.7rem,1.4vw,.95rem); color:var(--accent); }
+
+/* QUESTION */
+.question-card {
+  width:100%; max-width:860px; margin:0 auto;
+  background:var(--card);
+  border:2px solid rgba(255,255,255,.1);
+  border-radius:clamp(16px,2.5vw,26px);
+  padding:clamp(14px,3vh,26px) clamp(18px,4vw,40px);
+  text-align:center; backdrop-filter:blur(12px);
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:10px;
+  position:relative; overflow:hidden;
+}
+.question-card::before {
+  content:''; position:absolute; top:-50%; left:-50%;
+  width:200%; height:200%;
+  background:radial-gradient(ellipse,rgba(124,77,255,.05) 0%,transparent 70%);
+  pointer-events:none;
+}
+.q-emoji {
+  font-size:clamp(1.6rem,3.5vw,2.8rem);
+  animation:q-bounce 1.5s ease-in-out infinite;
+}
+@keyframes q-bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+.q-text {
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(2rem,6vw,4.2rem);
+  color:white; line-height:1.1;
+  text-shadow:0 0 40px rgba(255,214,0,.2);
+}
+.q-text .op { color:var(--accent); }
+.q-text .eq { color:var(--pink); }
+.feedback {
+  min-height:1.6rem;
+  font-size:clamp(.85rem,1.8vw,1.1rem);
+  font-weight:800; opacity:0; transition:opacity .3s;
+}
+.feedback.show { opacity:1; }
+.feedback.wrong  { color:#FF8A65; animation:shake .4s ease; }
+.feedback.correct{ color:var(--green); }
+@keyframes shake {
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-10px)} 40%{transform:translateX(10px)}
+  60%{transform:translateX(-8px)}  80%{transform:translateX(8px)}
+}
+
+/* BUTTONS */
+.answers {
+  width:100%; max-width:860px; margin:0 auto;
+  display:grid; grid-template-columns:repeat(4,1fr); gap:clamp(6px,1.2vw,12px);
+}
+.btn-ans {
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(1.4rem,3.2vw,2.6rem);
+  padding:clamp(12px,2.2vh,20px) 8px;
+  border:none; border-radius:clamp(12px,1.8vw,18px);
+  cursor:pointer; color:white;
+  box-shadow:0 5px 0 rgba(0,0,0,.3);
+  transition:all .15s cubic-bezier(.34,1.56,.64,1);
+  position:relative; overflow:hidden;
+}
+.btn-ans::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:40%;
+  background:rgba(255,255,255,.15); border-radius:inherit;
+}
+.btn-ans:nth-child(1){background:linear-gradient(135deg,#FF5252,#C62828);}
+.btn-ans:nth-child(2){background:linear-gradient(135deg,#448AFF,#1565C0);}
+.btn-ans:nth-child(3){background:linear-gradient(135deg,#69F0AE,#00796B);}
+.btn-ans:nth-child(4){background:linear-gradient(135deg,#FFD740,#E65100);}
+.btn-ans:hover { transform:translateY(-5px) scale(1.04); }
+.btn-ans:active { transform:translateY(2px) scale(.97); }
+.btn-ans.cf { animation:cf-anim .5s ease; pointer-events:none; }
+.btn-ans.wf { animation:wf-anim .4s ease; }
+@keyframes cf-anim { 50%{filter:brightness(2.2) saturate(2)} }
+@keyframes wf-anim { 25%,75%{filter:brightness(.35)} }
+
+/* ===== WIN SCREEN ===== */
+#win-screen {
+  background:radial-gradient(ellipse at 50% 30%, #180a30 0%, var(--sky) 100%);
+  gap:18px; text-align:center;
+}
+.win-planet {
+  font-size:clamp(5rem,12vw,8rem);
+  animation:glow-planet 1.5s ease-in-out infinite alternate;
+}
+@keyframes glow-planet {
+  from{filter:drop-shadow(0 0 20px rgba(255,214,0,.3))}
+  to{filter:drop-shadow(0 0 70px rgba(255,214,0,.9)) brightness(1.2)}
+}
+.flying-rocket {
+  position:fixed;
+  left:50%; bottom:8vh;
+  transform:translateX(-50%) rotate(-90deg);
+  font-size:clamp(2.5rem,6vw,4.5rem);
+  filter:drop-shadow(0 0 20px rgba(0,176,255,.8));
+  z-index:200; pointer-events:none;
+  animation:fly-up 2.5s cubic-bezier(.22,1,.36,1) forwards;
+}
+@keyframes fly-up {
+  0%  {bottom:8vh;  transform:translateX(-50%) rotate(-90deg) scale(1);}
+  60% {bottom:78vh; transform:translateX(-50%) rotate(-90deg) scale(.65);}
+  100%{bottom:84vh; transform:translateX(-50%) rotate(-90deg) scale(.1); opacity:0;}
+}
+.win-title {
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(1.8rem,5.5vw,4rem);
+  background:linear-gradient(135deg,var(--accent),var(--pink),var(--blue));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  animation:pt 1s ease-in-out infinite alternate;
+}
+@keyframes pt { from{filter:brightness(1)} to{filter:brightness(1.4)} }
+.win-msg {
+  font-size:clamp(.85rem,1.8vw,1.2rem);
+  color:rgba(255,255,255,.75); font-weight:700;
+  max-width:520px; line-height:1.6;
+}
+.win-btns { display:flex; gap:14px; flex-wrap:wrap; justify-content:center; }
+.btn-win {
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(.95rem,1.8vw,1.3rem);
+  padding:clamp(11px,1.8vh,15px) clamp(26px,5vw,48px);
+  border:none; border-radius:50px; cursor:pointer; transition:all .2s;
+}
+.btn-win.primary { background:linear-gradient(135deg,var(--accent),var(--orange)); color:#1a0800; box-shadow:0 6px 22px rgba(255,214,0,.4); }
+.btn-win.secondary { background:rgba(255,255,255,.1); color:white; border:2px solid rgba(255,255,255,.2); }
+.btn-win:hover { transform:scale(1.05) translateY(-3px); }
+
+/* confetti */
+.cf-piece {
+  position:fixed; border-radius:2px; pointer-events:none;
+  animation:cf-fall linear forwards; z-index:300;
+}
+@keyframes cf-fall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:.4} }
+.particle {
+  position:fixed; font-size:1.3rem; pointer-events:none; z-index:50;
+  animation:pfly .8s ease-out forwards;
+}
+@keyframes pfly { 0%{transform:translate(0,0) scale(1);opacity:1} 100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0} }
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<!-- ======= START SCREEN ======= -->
+<div class="screen" id="start-screen">
+  <div class="start-logo">🚀</div>
+  <div class="start-title">Uzay Gemisi<br>Matematik Macerası</div>
+  <div class="start-subtitle">Sınıfça Bir Gezegene Yolculuk!</div>
+
+  <div class="planet-select-label">🌌 Hedef Gezegeni Seç</div>
+  <div class="planets-row">
+    <div class="planet-card pc-moon" id="card-moon" onclick="selectPlanet('moon')">
+      <div class="planet-emoji">🌕</div>
+      <div class="planet-name">Ay</div>
+      <div class="planet-range">0 – 20 arası</div>
+      <div class="planet-badge">Başlangıç</div>
+    </div>
+    <div class="planet-card pc-mars" id="card-mars" onclick="selectPlanet('mars')">
+      <div class="planet-emoji">🔴</div>
+      <div class="planet-name">Mars</div>
+      <div class="planet-range">0 – 50 arası</div>
+      <div class="planet-badge">Orta Seviye</div>
+    </div>
+    <div class="planet-card pc-saturn" id="card-saturn" onclick="selectPlanet('saturn')">
+      <div class="planet-emoji">🪐</div>
+      <div class="planet-name">Satürn</div>
+      <div class="planet-range">0 – 99 arası</div>
+      <div class="planet-badge">İleri Seviye</div>
+    </div>
+  </div>
+  <button class="btn-start" id="btn-start" onclick="startGame()" disabled>🚀 &nbsp;BAŞLA!</button>
+
+  <!-- Author credit -->
+  <div style="position:fixed;bottom:16px;right:20px;font-size:clamp(.65rem,1.2vw,.85rem);color:rgba(255,255,255,.3);font-weight:700;letter-spacing:.5px;text-align:right;pointer-events:none;z-index:20;">
+    Hazırlayan: <span style="color:rgba(255,255,255,.55);">Sinan İnce</span>
+  </div>
+</div>
+
+<!-- ======= GAME SCREEN ======= -->
+<div class="screen hidden" id="game-screen">
+  <div class="top-bar">
+    <!-- Rocket + Fuel -->
+    <div class="rocket-panel">
+      <div class="rocket-ship" id="rocket-ship">🚀</div>
+      <div class="fuel-tank" id="fuel-tank"></div>
+      <div class="fuel-label">YAKIT</div>
+    </div>
+    <!-- Info -->
+    <div class="header-info">
+      <div class="game-title-sm">Uzay Gemisi Matematik</div>
+      <div>
+        <div class="planet-indicator">
+          <span id="pi-emoji" style="font-size:1.1rem">🌕</span>
+          <span class="pi-text" id="pi-text">Ay'a Yolculuk</span>
+        </div>
+        <div class="score-pill">
+          <span>⛽ <span id="fuel-count">0</span> / 10 Yakıt</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Question -->
+  <div class="question-card">
+    <div class="q-emoji" id="q-emoji">🤔</div>
+    <div class="q-text" id="q-text">Hazırlanıyor...</div>
+    <div class="feedback" id="feedback">–</div>
+  </div>
+
+  <!-- Answers -->
+  <div class="answers" id="answers"></div>
+</div>
+
+<!-- ======= WIN SCREEN ======= -->
+<div class="screen hidden" id="win-screen">
+  <div class="win-planet" id="win-planet">🌕</div>
+  <div class="win-title" id="win-title">HEDEFE ULAŞILDI! 🎉</div>
+  <div class="win-msg" id="win-msg">Tebrikler! Uzay geminiz başarıyla yola çıktı!</div>
+  <div class="win-btns">
+    <button class="btn-win primary" onclick="showStart()">🔄 Tekrar Oyna</button>
+    <button class="btn-win secondary" onclick="showStart()">🌍 Gezegen Değiştir</button>
+  </div>
+</div>
+
+<script>
+/* STARS */
+(function(){
+  const c=document.getElementById('stars');
+  for(let i=0;i<140;i++){
+    const s=document.createElement('div'); s.className='star-dot';
+    const sz=Math.random()*3+1;
+    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${(Math.random()*3+1).toFixed(1)}s;animation-delay:${(Math.random()*4).toFixed(1)}s;`;
+    c.appendChild(s);
+  }
+})();
+
+/* ============================================================
+   SES MOTORU — Web Audio API (harici dosya gerekmez)
+   ============================================================ */
+let audioCtx = null;
+let bgGain = null;
+let bgPlaying = false;
+let bgNodes = [];
+
+function getCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+/* ---- ARKA PLAN MÜZİĞİ ---- */
+function startBgMusic() {
+  if (bgPlaying) return;
+  const ctx = getCtx();
+  bgGain = ctx.createGain();
+  bgGain.gain.setValueAtTime(0.055, ctx.currentTime);
+  bgGain.connect(ctx.destination);
+  bgPlaying = true;
+
+  // Drone katmanı — 3 düşük sine dalgası
+  [55, 82.4, 110].forEach(freq => {
+    const osc = ctx.createOscillator();
+    const g   = ctx.createGain();
+    const lfo = ctx.createOscillator();
+    const lg  = ctx.createGain();
+    osc.type = 'sine'; osc.frequency.value = freq;
+    lfo.type = 'sine'; lfo.frequency.value = 0.07 + Math.random()*0.05;
+    lg.gain.value = freq * 0.012;
+    lfo.connect(lg); lg.connect(osc.frequency);
+    g.gain.setValueAtTime(0, ctx.currentTime);
+    g.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 4);
+    osc.connect(g); g.connect(bgGain);
+    osc.start(); lfo.start();
+    bgNodes.push(osc, lfo);
+  });
+
+  // Yavaş uzay melodisi — pentatonik notalar
+  const mel = [261.63,293.66,329.63,392,440,392,329.63,261.63,
+               220,246.94,261.63,329.63,261.63,220,246.94,196];
+  let idx = 0, nxt = ctx.currentTime + 1.5;
+  function sched() {
+    if (!bgPlaying) return;
+    const osc = ctx.createOscillator();
+    const g   = ctx.createGain();
+    const dly = ctx.createDelay(2);
+    const dg  = ctx.createGain();
+    osc.type = 'sine'; osc.frequency.value = mel[idx % mel.length];
+    const dur = 1.8;
+    g.gain.setValueAtTime(0, nxt);
+    g.gain.linearRampToValueAtTime(0.45, nxt + 0.25);
+    g.gain.exponentialRampToValueAtTime(0.001, nxt + dur);
+    dly.delayTime.value = 0.42; dg.gain.value = 0.22;
+    osc.connect(g); g.connect(bgGain); g.connect(dly); dly.connect(dg); dg.connect(bgGain);
+    osc.start(nxt); osc.stop(nxt + dur + 0.3); bgNodes.push(osc);
+    idx++; nxt += 1.1 + Math.random()*0.5;
+    setTimeout(sched, Math.max(50, (nxt - ctx.currentTime)*1000 - 150));
+  }
+  sched();
+}
+
+function stopBgMusic() {
+  bgNodes.forEach(n => { try { n.stop(); } catch(e){} });
+  bgNodes = []; bgPlaying = false;
+}
+
+/* ---- DOĞRU SESİ — mutlu yukarı çıkan arpej ---- */
+function playCorrectSound() {
+  const ctx = getCtx();
+  [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+    const osc = ctx.createOscillator(), g = ctx.createGain();
+    const t = ctx.currentTime + i * 0.09;
+    osc.type = 'triangle'; osc.frequency.value = freq;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.32, t + 0.04);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.32);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(t); osc.stop(t + 0.38);
+  });
+  // Parlak shimmer
+  const sh = ctx.createOscillator(), sg = ctx.createGain();
+  sh.type = 'sine';
+  sh.frequency.setValueAtTime(2093, ctx.currentTime);
+  sh.frequency.exponentialRampToValueAtTime(1046, ctx.currentTime + 0.4);
+  sg.gain.setValueAtTime(0.15, ctx.currentTime);
+  sg.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+  sh.connect(sg); sg.connect(ctx.destination);
+  sh.start(); sh.stop(ctx.currentTime + 0.55);
+}
+
+/* ---- YANLIŞ SESİ — kısa alçalan bzzzt ---- */
+function playWrongSound() {
+  const ctx = getCtx();
+  const osc = ctx.createOscillator(), g = ctx.createGain();
+  const lfo = ctx.createOscillator(), lg = ctx.createGain();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(200, ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(75, ctx.currentTime + 0.35);
+  g.gain.setValueAtTime(0.22, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+  lfo.frequency.value = 35; lg.gain.value = 0.07;
+  lfo.connect(lg); lg.connect(g.gain);
+  osc.connect(g); g.connect(ctx.destination);
+  osc.start(); lfo.start(); osc.stop(ctx.currentTime + 0.42); lfo.stop(ctx.currentTime + 0.42);
+}
+
+/* ---- KAZANMA SESİ — kısa fanfar ---- */
+function playWinSound() {
+  const ctx = getCtx();
+  [{f:523.25,t:0,d:.18},{f:659.25,t:.18,d:.18},{f:783.99,t:.36,d:.18},
+   {f:1046.5,t:.54,d:.45},{f:880,t:.7,d:.15},{f:1046.5,t:.85,d:.15},{f:1174.66,t:1.0,d:.65}
+  ].forEach(n => {
+    const osc = ctx.createOscillator(), g = ctx.createGain(), t = ctx.currentTime + n.t;
+    osc.type = 'triangle'; osc.frequency.value = n.f;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.38, t + 0.04);
+    g.gain.exponentialRampToValueAtTime(0.001, t + n.d + 0.1);
+    osc.connect(g); g.connect(ctx.destination); osc.start(t); osc.stop(t + n.d + 0.2);
+  });
+  // Pad
+  const pad = ctx.createOscillator(), pg = ctx.createGain();
+  pad.type='sine'; pad.frequency.value=523.25;
+  pg.gain.setValueAtTime(0,ctx.currentTime+.5);
+  pg.gain.linearRampToValueAtTime(.18,ctx.currentTime+1.1);
+  pg.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+3.2);
+  pad.connect(pg); pg.connect(ctx.destination);
+  pad.start(ctx.currentTime+.5); pad.stop(ctx.currentTime+3.5);
+}
+
+/* PLANET CONFIG */
+const PLANETS = {
+  moon:   { emoji:'🌕', name:'Ay',     label:"Ay'a Yolculuk",     max:20, color:'#C8D8E8',
+            winTitle:"AY'A ULAŞILDI! 🌕", winMsg:"Harika! Uzay geminiz Ay'a başarıyla indi! Tüm sınıf olarak başardınız! 🌟" },
+  mars:   { emoji:'🔴', name:'Mars',   label:"Mars'a Yolculuk",   max:50, color:'#E8643A',
+            winTitle:"MARS'A ULAŞILDI! 🔴", winMsg:"Muhteşem! Uzay geminiz Mars'a ulaştı! Sınıfınız gerçek birer astronot! 🚀" },
+  saturn: { emoji:'🪐', name:'Satürn', label:"Satürn'e Yolculuk", max:99, color:'#F0C060',
+            winTitle:"SATÜRN'E ULAŞILDI! 🪐", winMsg:"Olağanüstü! Uzay geminiz Satürn'e vardı! Bu sınıf çok zeki! 🌟" }
+};
+
+let selectedPlanet = null;
+let fuelLevel = 0;
+let locked = false;
+let currentQuestion = null;
+
+/* SELECT PLANET */
+function selectPlanet(p) {
+  selectedPlanet = p;
+  document.querySelectorAll('.planet-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('card-'+p).classList.add('selected');
+  document.getElementById('btn-start').disabled = false;
+}
+
+/* BUILD FUEL TANK */
+function buildFuelTank() {
+  const t = document.getElementById('fuel-tank');
+  t.innerHTML = '';
+  for(let i=0;i<10;i++){
+    const seg = document.createElement('div');
+    seg.className = 'fuel-seg';
+    seg.id = `fseg-${i}`;
+    t.appendChild(seg);
+  }
+}
+
+/* UPDATE FUEL DISPLAY */
+function updateFuel() {
+  for(let i=0;i<10;i++){
+    const seg = document.getElementById(`fseg-${i}`);
+    if(!seg) continue;
+    if(i < fuelLevel) seg.classList.add('filled');
+    else seg.classList.remove('filled');
+  }
+  document.getElementById('fuel-count').textContent = fuelLevel;
+}
+
+/* START GAME */
+function startGame() {
+  if(!selectedPlanet) return;
+  const p = PLANETS[selectedPlanet];
+
+  document.getElementById('pi-emoji').textContent = p.emoji;
+  document.getElementById('pi-text').textContent = p.label;
+  document.getElementById('pi-text').style.color = p.color;
+
+  fuelLevel = 0; locked = false;
+  const rk = document.getElementById('rocket-ship');
+  rk.style.cssText = '';
+  rk.classList.remove('launching');
+
+  buildFuelTank();
+  updateFuel();
+  showScreen('game-screen');
+  startBgMusic();
+  nextQuestion();
+}
+
+/* GENERATE QUESTION */
+function generateQuestion() {
+  const max = PLANETS[selectedPlanet].max;
+  const op = Math.random()<.5 ? '+' : '-';
+  let a,b,answer;
+  // Second number (b) is ALWAYS 0-10
+  // First number (a) fits the planet range so result stays within 0-max
+  if(op==='+'){
+    b = Math.floor(Math.random()*11);        // 0-10
+    const maxA = max - b;
+    a = Math.floor(Math.random()*(maxA+1));  // result = a+b <= max
+    answer = a+b;
+  } else {
+    b = Math.floor(Math.random()*11);        // 0-10
+    a = Math.floor(Math.random()*(max+1));   // any planet number
+    if(a < b) { const tmp=a; a=b; b=tmp; }  // ensure a >= b so no negatives
+    answer = a-b;
+  }
+  // Generate close wrong options
+  const wrongs = new Set();
+  let tries=0;
+  while(wrongs.size<3 && tries<300){
+    tries++;
+    const off = Math.floor(Math.random()*8)-4;
+    const w = Math.max(0, Math.min(max, answer+off));
+    if(w!==answer) wrongs.add(w);
+  }
+  for(let v=0;v<=max&&wrongs.size<3;v++) if(v!==answer) wrongs.add(v);
+  const opts=[answer,...wrongs];
+  for(let i=opts.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[opts[i],opts[j]]=[opts[j],opts[i]];}
+  const ep = op==='+' ? ['🌍','🛸','🌠','🔭','🌌','💫','🛰️','☄️','🌙','⭐'] : ['🪐','🌑','🚀','👨‍🚀','🌟','🌒','🔬','🌀','💥','🛺'];
+  return {a,b,op,answer,opts,emoji:ep[Math.floor(Math.random()*ep.length)]};
+}
+
+/* RENDER QUESTION */
+function renderQuestion(q) {
+  const sym = q.op==='+' ? '+' : '−';
+  document.getElementById('q-text').innerHTML =
+    `${q.a} <span class="op">${sym}</span> ${q.b} <span class="eq">=</span> ?`;
+  document.getElementById('q-emoji').textContent = q.emoji;
+  const cont = document.getElementById('answers');
+  cont.innerHTML='';
+  q.opts.forEach(opt=>{
+    const btn=document.createElement('button');
+    btn.className='btn-ans';
+    btn.textContent=opt;
+    btn.onclick=()=>handleAnswer(opt,btn);
+    cont.appendChild(btn);
+  });
+  clearFeedback();
+}
+
+/* HANDLE ANSWER */
+function handleAnswer(chosen, btn) {
+  if(locked) return;
+  locked = true;
+
+  if(chosen === currentQuestion.answer) {
+    btn.classList.add('cf');
+    playCorrectSound();
+    showFeedback('✅ Süper! Doğru! Yakıt doldu! ⛽','correct');
+    spawnParticles(btn);
+    setTimeout(()=>{
+      fuelLevel = Math.min(10, fuelLevel+1);
+      updateFuel();
+      if(fuelLevel>=10) setTimeout(launchRocket,350);
+      else nextQuestion();
+    },600);
+  } else {
+    btn.classList.add('wf');
+    playWrongSound();
+    if(fuelLevel>0){
+      const lostIdx = fuelLevel-1;
+      fuelLevel--;
+      updateFuel();
+      const seg = document.getElementById(`fseg-${lostIdx}`);
+      if(seg){ seg.classList.remove('filled'); seg.classList.add('losing'); setTimeout(()=>seg.classList.remove('losing'),500); }
+      showFeedback('💥 Yakıt azaldı! Tekrar dene! 💪','wrong');
+    } else {
+      showFeedback('💪 Bir daha dene! Yaparsın!','wrong');
+    }
+    setTimeout(()=>{ btn.classList.remove('wf'); locked=false; },600);
+  }
+}
+
+/* LAUNCH ROCKET */
+function launchRocket() {
+  const rk = document.getElementById('rocket-ship');
+  rk.classList.add('launching');
+  launchConfetti();
+  setTimeout(showWin, 2000);
+}
+
+/* SHOW WIN */
+function showWin() {
+  stopBgMusic();
+  playWinSound();
+  const p = PLANETS[selectedPlanet];
+  document.getElementById('win-planet').textContent = p.emoji;
+  document.getElementById('win-title').textContent = p.winTitle;
+  document.getElementById('win-msg').textContent = p.winMsg;
+  showScreen('win-screen');
+
+  // Flying rocket
+  const fr = document.createElement('div'); fr.className='flying-rocket'; fr.textContent='🚀';
+  document.body.appendChild(fr);
+  setTimeout(()=>fr.remove(),3500);
+
+  launchConfetti();
+}
+
+/* SHOW START */
+function showStart() {
+  stopBgMusic();
+  document.querySelectorAll('.cf-piece,.particle,.flying-rocket').forEach(e=>e.remove());
+  showScreen('start-screen');
+}
+
+/* NEXT QUESTION */
+function nextQuestion() {
+  currentQuestion = generateQuestion();
+  renderQuestion(currentQuestion);
+  locked = false;
+}
+
+/* FEEDBACK */
+function showFeedback(msg,type){
+  const el=document.getElementById('feedback');
+  el.textContent=msg; el.className=`feedback show ${type}`;
+}
+function clearFeedback(){
+  const el=document.getElementById('feedback');
+  el.className='feedback'; el.textContent='–';
+}
+
+/* SHOW SCREEN */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>{
+    s.id===id ? s.classList.remove('hidden') : s.classList.add('hidden');
+  });
+}
+
+/* PARTICLES */
+function spawnParticles(btn){
+  const r=btn.getBoundingClientRect();
+  const cx=r.left+r.width/2, cy=r.top+r.height/2;
+  const em=['⭐','✨','💫','🌟','⛽','🎉'];
+  for(let i=0;i<9;i++){
+    const p=document.createElement('div'); p.className='particle';
+    p.textContent=em[Math.floor(Math.random()*em.length)];
+    const a=(i/9)*Math.PI*2, d=70+Math.random()*65;
+    p.style.cssText=`left:${cx}px;top:${cy}px;--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;animation-duration:${.6+Math.random()*.4}s;`;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),1200);
+  }
+}
+
+/* CONFETTI */
+function launchConfetti(){
+  const cols=['#FFD600','#FF4081','#00E676','#00B0FF','#7C4DFF','#FF6D00','#FF5252','#69F0AE'];
+  for(let i=0;i<95;i++){
+    setTimeout(()=>{
+      const c=document.createElement('div'); c.className='cf-piece';
+      c.style.cssText=`left:${Math.random()*100}vw;top:-20px;background:${cols[Math.floor(Math.random()*cols.length)]};width:${8+Math.random()*14}px;height:${8+Math.random()*14}px;border-radius:${Math.random()<.5?'50%':'3px'};animation-duration:${2.2+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;`;
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(),6000);
+    },i*22);
+  }
+}
+</script>
+</body>
+</html>
