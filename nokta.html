@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Noktalama Ozanının Kayıp Parşömenleri</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --parchment-light: #f5e8c8;
+  --parchment-mid:   #e8d5a3;
+  --parchment-dark:  #c9a96e;
+  --ink-dark:        #2c1a0e;
+  --ink-mid:         #5c3d1e;
+  --ink-light:       #8b5e2e;
+  --gold:            #d4a017;
+  --gold-glow:       #ffdd55;
+  --correct-green:   #2d7d3a;
+  --wrong-red:       #8b1a1a;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; min-height: 100%;
+  font-family: 'IM Fell English', Georgia, serif;
+  background: #100800;
+  overflow-x: hidden;
+}
+
+/* ── EKRANLAR ── */
+.screen { display: none; min-height: 100vh; width: 100%; flex-direction: column; align-items: center; }
+.screen.active { display: flex; }
+
+/* ── PARŞÖMEN DOKU ── */
+.parchment-bg {
+  background:
+    repeating-linear-gradient(0deg,  transparent, transparent 28px, rgba(139,94,46,.06) 28px, rgba(139,94,46,.06) 29px),
+    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(139,94,46,.04) 40px, rgba(139,94,46,.04) 41px),
+    radial-gradient(ellipse at 20% 20%, #f0ddb0 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, #e8d090 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 50%, #f5e6c0 0%, #d4b87a 100%);
+  box-shadow: 0 0 80px rgba(0,0,0,.8), inset 0 0 120px rgba(139,94,46,.15);
+  position: relative;
+}
+.parchment-bg::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background:
+    radial-gradient(ellipse 80% 18% at 50%   0%, rgba(70,35,8,.40) 0%, transparent 100%),
+    radial-gradient(ellipse 80% 18% at 50% 100%,rgba(70,35,8,.45) 0%, transparent 100%),
+    radial-gradient(ellipse 14% 80% at   0% 50%, rgba(55,25,6,.35) 0%, transparent 100%),
+    radial-gradient(ellipse 14% 80% at 100% 50%,rgba(55,25,6,.35) 0%, transparent 100%);
+}
+
+/* ══════════════════════════════════════════════
+   EKRAN 1 — BAŞLANGIÇ
+══════════════════════════════════════════════ */
+#screen-intro { justify-content: center; padding: 40px 20px; }
+
+#intro-card {
+  max-width: 600px; width: 95%;
+  padding: 50px 40px 44px;
+  border-radius: 12px;
+  border: 3px double var(--parchment-dark);
+  text-align: center;
+  position: relative; z-index: 2;
+  animation: fadeSlideUp .8s ease both;
+}
+@keyframes fadeSlideUp { from{opacity:0;transform:translateY(40px)} to{opacity:1;transform:translateY(0)} }
+
+.intro-emblem {
+  font-size: clamp(3.5rem,10vw,5.5rem); line-height:1; margin-bottom:18px;
+  filter: drop-shadow(0 0 16px rgba(212,160,23,.7));
+  animation: emblemFloat 3s ease-in-out infinite;
+}
+@keyframes emblemFloat { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-10px) rotate(3deg)} }
+
+#intro-card h1 {
+  font-family:'Cinzel',serif; font-size:clamp(1.4rem,4.5vw,2.3rem);
+  color:var(--ink-dark);
+  text-shadow:1px 1px 0 var(--parchment-dark),0 0 20px rgba(212,160,23,.4);
+  line-height:1.25; margin-bottom:10px;
+}
+
+.intro-divider { width:80%; height:2px; background:linear-gradient(90deg,transparent,var(--gold),transparent); margin:14px auto; }
+
+#intro-card .lore-text { font-size:clamp(.9rem,2.5vw,1.1rem); color:var(--ink-mid); font-style:italic; line-height:1.7; margin-bottom:28px; }
+
+/* Parşömen şekilli buton */
+.scroll-btn { display:inline-block; position:relative; cursor:pointer; transition:transform .2s ease; touch-action:manipulation; }
+.scroll-btn:hover  { transform:scale(1.04) translateY(-2px); }
+.scroll-btn:active { transform:scale(.98); }
+.scroll-btn svg  { width:clamp(200px,55vw,280px); height:auto; filter:drop-shadow(0 6px 18px rgba(100,60,10,.55)); }
+.scroll-btn .btn-text {
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-family:'Cinzel',serif; font-size:clamp(1rem,3vw,1.3rem); font-weight:700;
+  color:var(--ink-dark); letter-spacing:.08em; pointer-events:none;
+}
+
+.intro-footer { margin-top:22px; font-size:.85rem; color:var(--ink-light); font-style:italic; }
+
+/* ══════════════════════════════════════════════
+   EKRAN 2 — HİKAYE SEÇİM
+══════════════════════════════════════════════ */
+#screen-select { padding:0 0 40px; align-items:stretch; }
+
+#select-wrapper { max-width:900px; width:100%; margin:0 auto; padding:24px 18px 40px; position:relative; z-index:2; min-height:100vh; }
+
+#select-header { text-align:center; padding:20px 10px 16px; border-bottom:3px double var(--parchment-dark); margin-bottom:28px; }
+#select-header h2 { font-family:'Cinzel',serif; font-size:clamp(1.2rem,3.5vw,1.9rem); color:var(--ink-dark); text-shadow:0 0 15px rgba(212,160,23,.3); }
+#select-header p  { font-size:clamp(.8rem,2vw,.95rem); color:var(--ink-light); font-style:italic; margin-top:5px; }
+
+#stories-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:18px; }
+
+.story-card {
+  position:relative; cursor:pointer;
+  border-radius:10px; border:2px solid var(--parchment-dark);
+  padding:22px 18px 18px;
+  background: radial-gradient(ellipse at 50% 0%,rgba(255,240,190,.5) 0%,transparent 70%), rgba(240,220,165,.4);
+  box-shadow:0 4px 16px rgba(44,26,14,.2),inset 0 1px 3px rgba(255,255,255,.4);
+  transition:transform .2s ease,box-shadow .2s ease;
+  touch-action:manipulation; overflow:hidden;
+}
+.story-card::before { content:''; position:absolute; top:0;left:0;right:0;height:4px; background:linear-gradient(90deg,transparent,var(--gold),transparent); opacity:.6; }
+.story-card:hover  { transform:translateY(-5px) rotate(.3deg); box-shadow:0 10px 30px rgba(44,26,14,.35),0 0 15px rgba(212,160,23,.2); }
+.story-card:active { transform:translateY(-2px); }
+
+.story-card .card-done { position:absolute; top:10px;right:10px; font-size:1.1rem; opacity:0; transition:opacity .3s; }
+.story-card.done .card-done { opacity:1; }
+.story-card.done { border-color:var(--correct-green); }
+
+.card-num   { font-family:'Cinzel',serif; font-size:.75rem; color:var(--gold); letter-spacing:.1em; margin-bottom:6px; }
+.card-icon  { font-size:2rem; margin-bottom:8px; line-height:1; filter:drop-shadow(0 0 6px rgba(212,160,23,.4)); }
+.card-title { font-family:'Cinzel',serif; font-size:clamp(.9rem,2.5vw,1.05rem); color:var(--ink-dark); font-weight:600; line-height:1.3; margin-bottom:6px; }
+.card-desc  { font-size:.82rem; color:var(--ink-mid); font-style:italic; line-height:1.4; }
+.card-chapters { margin-top:10px; font-size:.75rem; color:var(--ink-light); font-family:'Cinzel',serif; }
+
+/* ══════════════════════════════════════════════
+   EKRAN 3 — OYUN
+══════════════════════════════════════════════ */
+#screen-game { padding:0 0 90px; align-items:stretch; }
+
+#game-wrapper { max-width:900px; width:100%; margin:0 auto; min-height:100vh; position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; padding:20px 16px 20px; }
+
+#game-header { text-align:center; padding:14px 10px 10px; width:100%; border-bottom:3px double var(--parchment-dark); margin-bottom:14px; }
+#game-header h1 { font-family:'Cinzel',serif; font-size:clamp(1.1rem,3.5vw,1.8rem); color:var(--ink-dark); text-shadow:1px 1px 0 var(--parchment-dark),0 0 20px rgba(212,160,23,.4); }
+#game-story-title { font-size:clamp(.8rem,2.2vw,1rem); color:var(--gold); font-family:'Cinzel',serif; margin-top:4px; font-weight:600; }
+
+#progress-container { width:100%; display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+#level-badge,#score-badge { font-family:'Cinzel',serif; font-size:.8rem; color:var(--ink-mid); white-space:nowrap; font-weight:600; }
+#progress-track { flex:1; height:11px; background:rgba(44,26,14,.15); border-radius:6px; border:1px solid var(--parchment-dark); overflow:hidden; }
+#progress-fill  { height:100%; background:linear-gradient(90deg,var(--gold),var(--gold-glow)); border-radius:6px; transition:width .5s ease; box-shadow:0 0 8px rgba(255,221,85,.6); width:0%; }
+
+#scroll-area {
+  position:relative; width:100%;
+  background: radial-gradient(ellipse at 50% 50%,rgba(255,245,220,.6) 0%,transparent 70%), rgba(240,220,170,.3);
+  border:2px solid var(--parchment-dark); border-radius:8px;
+  padding:24px 20px 20px; margin-bottom:14px;
+  box-shadow:inset 0 2px 8px rgba(44,26,14,.1),0 4px 16px rgba(44,26,14,.2);
+}
+#scroll-area::before { content:'✦'; position:absolute; top:7px;left:11px; color:var(--gold); font-size:.85rem; opacity:.7; }
+#scroll-area::after  { content:'✦'; position:absolute; top:7px;right:11px; color:var(--gold); font-size:.85rem; opacity:.7; }
+
+#scroll-title { font-family:'Cinzel',serif; font-size:clamp(.75rem,2.2vw,.95rem); color:var(--ink-light); text-align:center; margin-bottom:12px; font-style:italic; }
+
+#sentence-display { font-size:clamp(1.15rem,3.2vw,1.65rem); color:var(--ink-dark); line-height:2.3; text-align:center; word-wrap:break-word; }
+
+/* Drop zones */
+.drop-zone {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:50px; height:42px;
+  border:2.5px dashed var(--gold); border-radius:7px;
+  margin:0 3px; vertical-align:middle;
+  background:rgba(212,160,23,.08);
+  transition:all .22s ease; cursor:pointer;
+  animation:zonePulse 2s ease-in-out infinite;
+}
+.drop-zone:not(.correct)::after { content:'﹖'; font-size:1.1rem; color:rgba(212,160,23,.45); }
+.drop-zone.has-content::after { display:none; }
+
+@keyframes zonePulse { 0%,100%{box-shadow:0 0 5px rgba(212,160,23,.3)} 50%{box-shadow:0 0 13px rgba(212,160,23,.7)} }
+
+.drop-zone.drag-over { background:rgba(212,160,23,.25); border-color:var(--gold-glow); border-style:solid; transform:scale(1.1); box-shadow:0 0 20px rgba(255,221,85,.7); }
+
+.drop-zone.correct {
+  border:2.5px solid var(--correct-green); background:rgba(45,125,58,.15);
+  animation:correctGlow .8s ease-out forwards; pointer-events:none;
+  color:var(--correct-green); font-family:'Cinzel',serif; font-weight:700; font-size:1.25rem;
+}
+@keyframes correctGlow {
+  0%  {box-shadow:0 0 0   rgba(255,221,85,0)}
+  30% {box-shadow:0 0 28px rgba(255,221,85,1);background:rgba(255,221,85,.5)}
+  100%{box-shadow:0 0 8px  rgba(45,125,58,.4)}
+}
+
+.drop-zone.wrong { animation:shakeZone .5s ease-out; border-color:var(--wrong-red); }
+@keyframes shakeZone { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
+
+#hint-area { width:100%; text-align:center; color:var(--ink-light); font-style:italic; font-size:clamp(.75rem,2vw,.9rem); margin-bottom:6px; opacity:.9; }
+
+#back-btn { font-family:'Cinzel',serif; font-size:.8rem; color:var(--ink-mid); background:rgba(201,169,110,.25); border:1px solid var(--parchment-dark); border-radius:30px; padding:7px 18px; cursor:pointer; transition:all .2s; touch-action:manipulation; margin-top:4px; }
+#back-btn:hover { background:rgba(201,169,110,.5); }
+
+/* Bölüm tamamlandı overlay */
+#level-complete { display:none; position:absolute; inset:0; z-index:200; background:rgba(44,26,14,.82); backdrop-filter:blur(4px); align-items:center; justify-content:center; flex-direction:column; border-radius:8px; }
+#level-complete.show { display:flex; }
+
+.complete-card {
+  background: radial-gradient(ellipse at 50% 0%,rgba(255,221,85,.15) 0%,transparent 60%), linear-gradient(180deg,#f5e6c0,#e0c88a);
+  border:3px solid var(--gold); border-radius:16px;
+  padding:32px 36px; text-align:center; max-width:400px; width:90%;
+  box-shadow:0 0 60px rgba(212,160,23,.5),0 20px 60px rgba(0,0,0,.5);
+  animation:cardReveal .45s cubic-bezier(.34,1.56,.64,1) forwards;
+}
+@keyframes cardReveal { from{transform:scale(.5) rotate(-5deg);opacity:0} to{transform:scale(1) rotate(0);opacity:1} }
+.complete-icon { font-size:3rem; margin-bottom:10px; animation:iconBounce .7s ease .3s both; }
+@keyframes iconBounce { 0%{transform:scale(0)} 60%{transform:scale(1.2)} 100%{transform:scale(1)} }
+.complete-card h2 { font-family:'Cinzel',serif; font-size:clamp(1.1rem,3.5vw,1.6rem); color:var(--ink-dark); margin-bottom:8px; }
+.complete-card p  { font-size:clamp(.85rem,2.2vw,1rem); color:var(--ink-mid); margin-bottom:20px; font-style:italic; }
+
+.action-btn {
+  font-family:'Cinzel',serif; font-size:clamp(.85rem,2.2vw,1rem); font-weight:700;
+  color:var(--ink-dark); background:linear-gradient(135deg,var(--gold-glow),var(--gold));
+  border:2px solid rgba(44,26,14,.25); border-radius:50px; padding:12px 28px;
+  cursor:pointer; transition:all .2s ease;
+  box-shadow:0 4px 18px rgba(212,160,23,.4); touch-action:manipulation; min-height:50px; margin:0 6px 8px;
+}
+.action-btn:hover { transform:translateY(-3px); box-shadow:0 8px 28px rgba(212,160,23,.6); }
+.action-btn.purple-btn { background:linear-gradient(135deg,#c0a0ff,#7b4faa); color:#fff; }
+
+/* ── RÜNLER ── */
+#rune-tray {
+  position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+  width:100%; max-width:900px; z-index:100;
+  background:linear-gradient(180deg,transparent 0%,rgba(20,10,2,.88) 25%,rgba(15,7,1,.97) 100%);
+  padding:12px 14px 18px;
+  display:flex; align-items:center; justify-content:center;
+  gap:clamp(8px,2.5vw,20px);
+  border-top:3px solid var(--gold); box-shadow:0 -8px 28px rgba(0,0,0,.55);
+}
+
+.rune-stone {
+  width:clamp(58px,12vw,76px); height:clamp(58px,12vw,76px);
+  border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-size:clamp(1.5rem,4.5vw,2.2rem); font-family:'Cinzel',serif; font-weight:700; color:#fff;
+  cursor:grab; user-select:none; -webkit-user-select:none; touch-action:none;
+  transition:transform .15s ease,box-shadow .15s ease; flex-shrink:0;
+  animation:runeGlimmer 2.5s ease-in-out infinite;
+}
+.rune-stone:active { cursor:grabbing; }
+.rune-stone:hover  { transform:scale(1.12) translateY(-4px); }
+.rune-stone.dragging { opacity:.4; transform:scale(.9); }
+.rune-stone .rune-label { font-size:clamp(.42rem,1.1vw,.58rem); color:rgba(255,255,255,.7); margin-top:2px; letter-spacing:.05em; text-transform:uppercase; }
+
+.rune-dot        { background:radial-gradient(circle at 35% 35%,#c4935a,#7a5230); box-shadow:0 0 18px rgba(122,82,48,.7),0 0 40px rgba(122,82,48,.3),inset 0 2px 4px rgba(255,255,255,.3); border:2px solid rgba(255,200,150,.5); animation-delay:0s; }
+.rune-comma      { background:radial-gradient(circle at 35% 35%,#5ab4d4,#1a6b8a); box-shadow:0 0 18px rgba(26,107,138,.7),0 0 40px rgba(26,107,138,.3),inset 0 2px 4px rgba(255,255,255,.3); border:2px solid rgba(150,220,255,.5); animation-delay:.5s; }
+.rune-question   { background:radial-gradient(circle at 35% 35%,#a86bc4,#6b2a8a); box-shadow:0 0 18px rgba(107,42,138,.8),0 0 40px rgba(107,42,138,.4),inset 0 2px 4px rgba(255,255,255,.3); border:2px solid rgba(200,150,255,.5); animation-delay:1s; }
+.rune-exclaim    { background:radial-gradient(circle at 35% 35%,#e8c030,#b8860b); box-shadow:0 0 22px rgba(212,160,23,.9),0 0 50px rgba(212,160,23,.5),inset 0 2px 4px rgba(255,255,255,.4); border:2px solid rgba(255,240,100,.6); animation-delay:1.5s; }
+.rune-apostrophe { background:radial-gradient(circle at 35% 35%,#9090aa,#5a5a6e); box-shadow:0 0 18px rgba(90,90,110,.7),0 0 40px rgba(90,90,110,.3),inset 0 2px 4px rgba(255,255,255,.3); border:2px solid rgba(200,200,220,.5); animation-delay:2s; }
+
+@keyframes runeGlimmer { 0%,100%{opacity:1} 50%{opacity:.75;filter:brightness(1.35)} }
+
+/* ── OYUN SONU ── */
+#game-over-screen { display:none; position:fixed; inset:0; z-index:500; background:rgba(8,4,1,.93); align-items:center; justify-content:center; flex-direction:column; }
+#game-over-screen.show { display:flex; }
+.end-card { background:linear-gradient(180deg,#f5e6c0,#d4b060); border:4px solid var(--gold); border-radius:20px; padding:36px 44px; text-align:center; max-width:440px; width:90%; box-shadow:0 0 80px rgba(212,160,23,.6); animation:cardReveal .6s cubic-bezier(.34,1.56,.64,1) forwards; }
+.end-icon { font-size:3.5rem; margin-bottom:14px; }
+.end-card h2 { font-family:'Cinzel',serif; font-size:clamp(1.2rem,4vw,1.8rem); color:var(--ink-dark); margin-bottom:8px; }
+.final-score { font-family:'Cinzel',serif; font-size:1.9rem; color:var(--gold); margin:8px 0 18px; text-shadow:0 0 15px rgba(212,160,23,.6); }
+
+/* ── KONFETİ ── */
+#confetti-container { position:fixed; top:0;left:0; width:100%;height:100%; pointer-events:none; z-index:300; overflow:hidden; }
+.confetti-piece { position:absolute; top:-20px; width:10px; height:14px; opacity:0; animation:confettiFall linear forwards; }
+@keyframes confettiFall { 0%{transform:translateY(0) rotateZ(0) rotateX(0);opacity:1} 80%{opacity:1} 100%{transform:translateY(110vh) rotateZ(720deg) rotateX(180deg);opacity:0} }
+
+/* ── SÜRÜKLEME HAYALETI ── */
+#drag-ghost { position:fixed; pointer-events:none; z-index:9999; opacity:.85; transform:translate(-50%,-50%) scale(1.15); display:none; }
+
+/* ── RESPONSIVE ── */
+@media (max-width:480px) {
+  #intro-card { padding:36px 22px 32px; }
+  #select-wrapper { padding:18px 12px 36px; }
+  #game-wrapper { padding:14px 10px 14px; }
+  .drop-zone { width:42px; height:37px; }
+  #rune-tray { gap:7px; padding:10px 10px 15px; }
+  #stories-grid { grid-template-columns:1fr 1fr; gap:12px; }
+}
+@media (max-width:340px) { #stories-grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<!-- EKRAN 1: BAŞLANGIÇ -->
+<div id="screen-intro" class="screen parchment-bg active">
+  <div id="intro-card" class="parchment-bg">
+    <div class="intro-emblem">🪗</div>
+    <h1>Noktalama Ozanının<br>Kayıp Parşömenleri</h1>
+    <div class="intro-divider"></div>
+    <p class="lore-text">
+      Efsanevi İrfan Ozanı'nın büyülü parşömenleri dağılmış,<br>
+      üzerindeki noktalama rünleri kaybolmuştur.<br><br>
+      Yalnızca seçilmiş bir kahraman rünleri yerlerine<br>
+      yerleştirerek hikayeleri kurtarabilir…<br><br>
+      <strong style="font-style:normal;color:var(--ink-dark)">Sen o kahraman mısın?</strong>
+    </p>
+    <div class="scroll-btn" onclick="showSelectScreen()" role="button" aria-label="Oyunu başlat">
+      <svg viewBox="0 0 280 90" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sg1" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%"   stop-color="#f5e8c0"/>
+            <stop offset="100%" stop-color="#d4a84a"/>
+          </linearGradient>
+          <filter id="sf1"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="rgba(80,40,5,.5)"/></filter>
+        </defs>
+        <ellipse cx="22"  cy="45" rx="18" ry="36" fill="#b8860b" filter="url(#sf1)"/>
+        <ellipse cx="22"  cy="45" rx="13" ry="30" fill="#d4a017"/>
+        <ellipse cx="22"  cy="45" rx="8"  ry="22" fill="#e8c040"/>
+        <rect x="18" y="9" width="244" height="72" rx="4" fill="url(#sg1)" filter="url(#sf1)"/>
+        <rect x="18" y="9" width="244" height="72" rx="4" fill="none" stroke="#c9a96e" stroke-width="2"/>
+        <line x1="28" y1="17" x2="252" y2="17" stroke="#c9a96e" stroke-width="1" opacity=".5"/>
+        <line x1="28" y1="73" x2="252" y2="73" stroke="#c9a96e" stroke-width="1" opacity=".5"/>
+        <ellipse cx="258" cy="45" rx="18" ry="36" fill="#b8860b" filter="url(#sf1)"/>
+        <ellipse cx="258" cy="45" rx="13" ry="30" fill="#d4a017"/>
+        <ellipse cx="258" cy="45" rx="8"  ry="22" fill="#e8c040"/>
+        <text x="140" y="30" text-anchor="middle" fill="rgba(139,94,46,.35)" font-size="8" font-family="serif">✦ ✦ ✦</text>
+        <text x="140" y="68" text-anchor="middle" fill="rgba(139,94,46,.35)" font-size="8" font-family="serif">✦ ✦ ✦</text>
+      </svg>
+      <div class="btn-text">⚔ MACERAYA BAŞLA ⚔</div>
+    </div>
+    <p class="intro-footer">🎭 10 Fantastik Hikaye &nbsp;·&nbsp; 30 Bölüm &nbsp;·&nbsp; Tüm Cihazlarla Uyumlu</p>
+  </div>
+</div>
+
+<!-- EKRAN 2: HİKAYE SEÇİM -->
+<div id="screen-select" class="screen parchment-bg">
+  <div id="select-wrapper">
+    <div id="select-header">
+      <h2>⚜ Parşömen Arşivi ⚜</h2>
+      <p>Bir hikaye parşömeni seç ve macerana başla, kahraman!</p>
+    </div>
+    <div id="stories-grid"></div>
+  </div>
+</div>
+
+<!-- EKRAN 3: OYUN -->
+<div id="screen-game" class="screen parchment-bg">
+  <div id="game-wrapper">
+    <header id="game-header">
+      <h1>⚜ Noktalama Ozanının Kayıp Parşömenleri ⚜</h1>
+      <div id="game-story-title">— Hikaye —</div>
+    </header>
+    <div id="progress-container">
+      <span id="level-badge">Bölüm 1 / 3</span>
+      <div id="progress-track"><div id="progress-fill"></div></div>
+      <span id="score-badge">⭐ 0</span>
+    </div>
+    <section id="scroll-area">
+      <div id="scroll-title">📜 Parşömen okunuyor…</div>
+      <div id="sentence-display"></div>
+      <div id="level-complete">
+        <div class="complete-card">
+          <div class="complete-icon" id="cmp-icon">🏆</div>
+          <h2 id="complete-title">Bölüm Tamamlandı!</h2>
+          <p id="complete-msg">Rünleri ustaca yerleştirdin!</p>
+          <div>
+            <button class="action-btn" id="next-level-btn" onclick="nextChapter()">Sonraki Bölüm ➤</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div id="hint-area">
+      💡 Alttaki <strong style="font-style:normal;color:var(--ink-mid)">Noktalama Rünlerini</strong> sürükleyip boşluklara bırak!
+    </div>
+    <button id="back-btn" onclick="goBackToSelect()">← Hikaye Seçimine Dön</button>
+  </div>
+</div>
+
+<!-- OYUN SONU -->
+<div id="game-over-screen">
+  <div class="end-card">
+    <div class="end-icon">🎭</div>
+    <h2>Hikaye Tamamlandı!</h2>
+    <p style="font-style:italic;color:var(--ink-mid);margin:6px 0 4px">Nihai Puanın:</p>
+    <div class="final-score" id="final-score-display">0</div>
+    <p style="font-size:.88rem;color:var(--ink-mid);margin-bottom:20px;font-style:italic">İrfan Ozanı sana en derin saygısını sunar, büyük kahraman!</p>
+    <button class="action-btn" onclick="goBackToSelect()">📚 Başka Hikaye Seç</button><br>
+    <button class="action-btn purple-btn" onclick="replayStory()">🔄 Tekrar Oyna</button>
+  </div>
+</div>
+
+<div id="confetti-container"></div>
+<div id="drag-ghost"></div>
+
+<!-- RÜNLER (oyun ekranında gösterilir) -->
+<div id="rune-tray" style="display:none;">
+  <div class="rune-stone rune-dot"        data-rune="." draggable="true" role="button" aria-label="Nokta">.<span class="rune-label">Nokta</span></div>
+  <div class="rune-stone rune-comma"      data-rune="," draggable="true" role="button" aria-label="Virgül">,<span class="rune-label">Virgül</span></div>
+  <div class="rune-stone rune-question"   data-rune="?" draggable="true" role="button" aria-label="Soru">?<span class="rune-label">Soru</span></div>
+  <div class="rune-stone rune-exclaim"    data-rune="!" draggable="true" role="button" aria-label="Ünlem">!<span class="rune-label">Ünlem</span></div>
+  <div class="rune-stone rune-apostrophe" data-rune="'" draggable="true" role="button" aria-label="Kesme">'<span class="rune-label">Kesme</span></div>
+</div>
+
+<script>
+'use strict';
+
+/* ── 1. HİKAYE VERİSİ ── */
+const STORIES = [
+  {
+    id:0, title:"Ozanın Yeni Şarkısı", icon:"🎵",
+    desc:"İrfan Ozanı yeni bestesini seslendirmek üzere sahneye çıkıyor…",
+    chapters:[
+      { scroll:"Bölüm I — Hazırlık",    text:"İrfan Ozanı sahneye çıkıp eski davulunu[,] sihirli flütünü ve parşömenlerini hazırladı[.]",                    answers:[",","."] },
+      { scroll:"Bölüm II — Kalabalık",  text:"Heyecanla bekleyen kalabalığa doğru gülümsedi[.] Acaba yeni bestesini beğenecekler miydi[?]",                   answers:[".","?"] },
+      { scroll:"Bölüm III — İlk Nota",  text:"Harika[!] Ozan[']ın çaldığı ilk nota tüm kasabayı büyülemeyi başardı[.]",                                        answers:["!","'","."] }
+    ]
+  },
+  {
+    id:1, title:"Barışın Sembolü", icon:"🕊️",
+    desc:"Antik yıkıntılarda saklı yüzyıllık gizli bir hazine…",
+    chapters:[
+      { scroll:"Bölüm I — Yıkıntılar",  text:"Antik imparatorluğun yıkıntıları arasında gümüş bir kutu[,] paslı bir kılıç ve eski bir kalkan bulduk[.]",     answers:[",","."] },
+      { scroll:"Bölüm II — Zeytin Dalı",text:"Kutunun içinden parlayan bir zeytin dalı çıktı[.] Bu dal efsanevi barışın sembolü müydü[?]",                    answers:[".","?"] },
+      { scroll:"Bölüm III — Hazine",    text:"İnanılmaz[!] İmparator[']un yüz yıllardır saklanan gizli hazinesini sonunda bulmuştuk[.]",                       answers:["!","'","."] }
+    ]
+  },
+  {
+    id:2, title:"Ustanın Sihirli Makinesi", icon:"⚙️",
+    desc:"Cüce mucit inanılmaz bir makine inşa ediyor…",
+    chapters:[
+      { scroll:"Bölüm I — Malzemeler",  text:"Cüce mucit masasına renkli ipler[,] dişliler ve tuhaf kristaller koydu[.]",                                      answers:[",","."] },
+      { scroll:"Bölüm II — İnşaat",     text:"Makinesi katman katman sihirli bir kale inşa etmeye başladı[.] Bu küçük alet nasıl bu kadar hızlı çalışıyordu[?]",answers:[".","?"] },
+      { scroll:"Bölüm III — Tehlike",   text:"Dikkat et[!] Usta[']nın makinesi çok ısınıp dumanlar çıkarmaya başladı[.]",                                      answers:["!","'","."] }
+    ]
+  },
+  {
+    id:3, title:"Kara Elmas Diyarı", icon:"💎",
+    desc:"Kuzeye uzanan tehlikeli ve efsanevi bir kervan yolculuğu…",
+    chapters:[
+      { scroll:"Bölüm I — Kervan",      text:"Kuzeye doğru yola çıkan kervan[,] derin vadileri[,] yüksek tepeleri ve coşkun nehirleri aştı[.]",               answers:[",",",","."] },
+      { scroll:"Bölüm II — Dalgalar",   text:"Hırçın dalgalar ahşap gemiyi beşik gibi sallıyordu[.] Kıyıdaki o devasa kaleye ulaşabilecekler miydi[?]",       answers:[".","?"] },
+      { scroll:"Bölüm III — Şato",      text:"Yaşasın[!] Ereğli Şatosu[']nun görkemli surları nihayet ufukta göründü[.]",                                     answers:["!","'","."] }
+    ]
+  },
+  {
+    id:4, title:"Büyücünün İksiri", icon:"🧪",
+    desc:"Büyücü Özlem gizemli görünmezlik iksiri hazırlıyor…",
+    chapters:[
+      { scroll:"Bölüm I — Kazan",       text:"Büyücü Özlem dev kazanına ejderha pulu[,] yıldız tozu ve bir damla ay ışığı ekledi[.]",                          answers:[",","."] },
+      { scroll:"Bölüm II — Duman",      text:"Karışım aniden parlak pembe bir duman çıkardı[.] Bu iksir gerçekten de görünmezliği sağlayacak mıydı[?]",        answers:[".","?"] },
+      { scroll:"Bölüm III — Patlama",   text:"Eyvah[!] Şişe[']nin kapağı büyük bir gürültüyle patladı[.]",                                                     answers:["!","'","."] }
+    ]
+  },
+  {
+    id:5, title:"Uzak Adalar", icon:"🏝️",
+    desc:"Cesur kaptan sıcak adalara yelken açıyor…",
+    chapters:[
+      { scroll:"Bölüm I — Hazırlık",    text:"Cesur kaptan sıcak adalara gitmek için haritasını[,] pusulasını ve eski dürbününü hazırladı[.]",                  answers:[",","."] },
+      { scroll:"Bölüm II — Gölge",      text:"Kristal berraklığındaki sularda dev bir gölge belirdi[.] Bu efsanevi deniz canavarı olabilir miydi[?]",           answers:[".","?"] },
+      { scroll:"Bölüm III — Ahtapot",   text:"İmdat[!] Gemi[']nin güvertesine kocaman bir ahtapot kolu çarptı[.]",                                              answers:["!","'","."] }
+    ]
+  },
+  {
+    id:6, title:"İki Nehir Arasındaki Şehir", icon:"🏰",
+    desc:"İki nehrin arasında muhteşem bir şehir kuruluyor…",
+    chapters:[
+      { scroll:"Bölüm I — İnşaat",      text:"İki nehrin ortasındaki vadiye evler[,] yüksek kuleler[,] geniş pazarlar ve büyük bir saray inşa ettik[.]",       answers:[",",",","."] },
+      { scroll:"Bölüm II — Halk",       text:"Halk yeni kurulan bu görkemli şehirde çok mutluydu[.] Acaba komşu krallık bu duruma ne diyecekti[?]",            answers:[".","?"] },
+      { scroll:"Bölüm III — Söylenti",  text:"Dikkatli olun[!] Casuslar[']ın şehre sızdığına dair söylentiler hızla yayılıyor[.]",                             answers:["!","'","."] }
+    ]
+  },
+  {
+    id:7, title:"Sualtı Krallığı", icon:"🧜",
+    desc:"Okyanusun derinliklerinde gizli büyülü bir krallık…",
+    chapters:[
+      { scroll:"Bölüm I — Krallık",     text:"Okyanusun derinliklerindeki krallıkta denizkızları[,] sevimli yunuslar ve parlak balıklar yüzüyordu[.]",         answers:[",","."] },
+      { scroll:"Bölüm II — Mavi Işık",  text:"Karanlık mağaranın içinden tuhaf bir mavi ışık süzüldü[.] Kayıp inci kolye orada mı saklanıyordu[?]",            answers:[".","?"] },
+      { scroll:"Bölüm III — İnci",      text:"Muhteşem[!] Kral[']ın tacını süsleyen o sihirli inci sonunda bulundu[.]",                                         answers:["!","'","."] }
+    ]
+  },
+  {
+    id:8, title:"Metal Golemin Konseri", icon:"🤖",
+    desc:"Dev metal golem müzik sahnesine çıkıyor…",
+    chapters:[
+      { scroll:"Bölüm I — Sahne",       text:"Dev golem sahneye çıkıp baterisine[,] elektro gitarına ve ağır mikrofonuna dokundu[.]",                            answers:[",","."] },
+      { scroll:"Bölüm II — Ses",        text:"Çıkardığı yüksek ses tüm ormanı inletti[.] Seyirciler bu gürültülü ve enerjik müziğe dayanabilecek miydi[?]",    answers:[".","?"] },
+      { scroll:"Bölüm III — Dans",      text:"Çılgınca[!] Golem[']in çaldığı soloya bütün orman perileri dans ederek eşlik etmeye başladı[.]",                  answers:["!","'","."] }
+    ]
+  },
+  {
+    id:9, title:"Büyük Turnuva", icon:"🏆",
+    desc:"Efsanevi şampiyona başlıyor — kazanan kim olacak?",
+    chapters:[
+      { scroll:"Bölüm I — Sıralama",    text:"Şampiyonaya katılan keskin nişancı okçular[,] cesur şövalyeler ve bilge büyücüler sıraya dizildi[.]",             answers:[",","."] },
+      { scroll:"Bölüm II — Ödül",       text:"Turnuvanın sonunda en iyi tahmini yapan kişi büyük ödülü kazanacaktı[.] Sence bu zorlu mücadeleden kim galip çıkacak[?]", answers:[".","?"] },
+      { scroll:"Bölüm III — Sürpriz",   text:"İnanılmaz[!] Zayıf görünen savaşçı[']nın son saniyedeki hamlesi herkesi şaşkına çevirdi[.]",                     answers:["!","'","."] }
+    ]
+  }
+];
+
+/* ── 2. DURUM ── */
+let currentStoryIdx   = 0;
+let currentChapterIdx = 0;
+let totalScore        = 0;
+let filledCount       = 0;
+let totalZones        = 0;
+let draggedRune       = null;
+let draggedChar       = null;
+let completedStories  = new Set();
+
+/* ── 3. AUDIO ── */
+let audioCtx = null;
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+function playTone(freq, dur, type='sine', gain=0.4, delay=0) {
+  ensureAudio();
+  const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+  o.connect(g); g.connect(audioCtx.destination);
+  o.type = type;
+  o.frequency.setValueAtTime(freq, audioCtx.currentTime + delay);
+  g.gain.setValueAtTime(0, audioCtx.currentTime + delay);
+  g.gain.linearRampToValueAtTime(gain, audioCtx.currentTime + delay + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + dur);
+  o.start(audioCtx.currentTime + delay);
+  o.stop(audioCtx.currentTime + delay + dur + 0.05);
+}
+function soundPickup()  { playTone(800,.04,'square',.25); playTone(400,.08,'triangle',.15,.03); }
+function soundCorrect() { [523.25,659.25,783.99].forEach((f,i) => playTone(f,.6,'sine',.35,i*.07)); }
+function soundWrong()   { playTone(220,.05,'sawtooth',.5); playTone(180,.12,'sawtooth',.3,.04); playTone(120,.2,'sawtooth',.15,.1); }
+function soundVictory() {
+  [{f:392,d:.15},{f:392,d:.15},{f:523,d:.30},{f:440,d:.15},{f:494,d:.30},{f:523,d:.50}]
+    .reduce((t,n) => { playTone(n.f,n.d,'sine',.4,t); return t+n.d+.04; }, 0);
+}
+
+/* ── 4. EKRAN GEÇİŞ ── */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('rune-tray').style.display = id === 'screen-game' ? 'flex' : 'none';
+  window.scrollTo(0, 0);
+}
+
+function showSelectScreen() { buildSelectScreen(); showScreen('screen-select'); }
+function goBackToSelect()   { document.getElementById('game-over-screen').classList.remove('show'); showSelectScreen(); }
+
+/* ── 5. SEÇİM EKRANI ── */
+function buildSelectScreen() {
+  const grid = document.getElementById('stories-grid');
+  grid.innerHTML = '';
+  STORIES.forEach(story => {
+    const card = document.createElement('div');
+    card.className = 'story-card' + (completedStories.has(story.id) ? ' done' : '');
+    card.innerHTML = `
+      <div class="card-done">✅</div>
+      <div class="card-num">— Parşömen ${story.id+1} —</div>
+      <div class="card-icon">${story.icon}</div>
+      <div class="card-title">${story.title}</div>
+      <div class="card-desc">${story.desc}</div>
+      <div class="card-chapters">📜 ${story.chapters.length} Bölüm</div>
+    `;
+    card.addEventListener('click', () => startStory(story.id));
+    card.addEventListener('touchend', e => { e.preventDefault(); startStory(story.id); });
+    grid.appendChild(card);
+  });
+}
+
+/* ── 6. HİKAYEYİ BAŞLAT ── */
+function startStory(idx) {
+  currentStoryIdx = idx; currentChapterIdx = 0;
+  totalScore = 0; updateScore();
+  showScreen('screen-game');
+  buildChapter(idx, 0);
+}
+function replayStory() {
+  document.getElementById('game-over-screen').classList.remove('show');
+  startStory(currentStoryIdx);
+}
+
+/* ── 7. BÖLÜMÜ OLUŞTUR ── */
+function buildChapter(si, ci) {
+  const story = STORIES[si], ch = story.chapters[ci];
+  filledCount = 0;
+  document.getElementById('game-story-title').textContent = `${story.icon} ${story.title}`;
+  document.getElementById('scroll-title').textContent = `📜 ${ch.scroll}`;
+  document.getElementById('level-badge').textContent = `Bölüm ${ci+1} / ${story.chapters.length}`;
+  document.getElementById('progress-fill').style.width = (ci / story.chapters.length * 100) + '%';
+
+  const display = document.getElementById('sentence-display');
+  display.innerHTML = '';
+  let zi = 0;
+  ch.text.split(/(\[[^\]]+\])/g).forEach(part => {
+    if (/^\[([^\]]+)\]$/.test(part)) {
+      const zone = document.createElement('span');
+      zone.className = 'drop-zone';
+      zone.dataset.answer = ch.answers[zi];
+      zone.dataset.index  = zi;
+      setupDropZone(zone);
+      display.appendChild(zone);
+      zi++;
+    } else if (part) {
+      display.appendChild(document.createTextNode(part));
+    }
+  });
+  totalZones = zi;
+  document.getElementById('level-complete').classList.remove('show');
+}
+
+/* ── 8. DROP ZONE ── */
+function setupDropZone(zone) {
+  zone.addEventListener('dragover',  onZoneDragOver);
+  zone.addEventListener('dragleave', onZoneDragLeave);
+  zone.addEventListener('drop',      onZoneDrop);
+  zone.addEventListener('click',     onZoneClick);
+  zone.addEventListener('touchend',  e => e.preventDefault(), { passive:false });
+}
+
+/* ── 9. RÜN TAŞLARI ── */
+function setupRuneStones() {
+  document.querySelectorAll('.rune-stone').forEach(s => {
+    s.addEventListener('dragstart', onRuneDragStart);
+    s.addEventListener('dragend',   onRuneDragEnd);
+    s.addEventListener('click',     onRuneClick);
+    s.addEventListener('touchstart', onRuneTouchStart, { passive:false });
+    s.addEventListener('touchmove',  onRuneTouchMove,  { passive:false });
+    s.addEventListener('touchend',   onRuneTouchEnd_Stone, { passive:false });
+  });
+}
+
+/* ── 10. MASAÜSTÜ DRAG ── */
+function onRuneDragStart(e) {
+  draggedRune = e.currentTarget; draggedChar = draggedRune.dataset.rune;
+  e.dataTransfer.setData('text/plain', draggedChar);
+  e.dataTransfer.effectAllowed = 'copy';
+  draggedRune.classList.add('dragging');
+  soundPickup();
+  const g = document.createElement('div');
+  g.textContent = draggedChar;
+  g.style.cssText='position:fixed;top:-300px;left:-300px;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-family:Cinzel,serif;color:#fff;background:rgba(0,0,0,.7);box-shadow:0 0 20px rgba(255,221,85,.8);z-index:9999;pointer-events:none;';
+  document.body.appendChild(g);
+  e.dataTransfer.setDragImage(g,30,30);
+  setTimeout(()=>g.remove(),0);
+}
+function onRuneDragEnd() { if(draggedRune) draggedRune.classList.remove('dragging'); draggedRune=null; draggedChar=null; }
+
+function onZoneDragOver(e) {
+  e.preventDefault(); e.dataTransfer.dropEffect='copy';
+  if (!e.currentTarget.classList.contains('correct')) e.currentTarget.classList.add('drag-over');
+}
+function onZoneDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function onZoneDrop(e) {
+  e.preventDefault();
+  const zone = e.currentTarget;
+  if (zone.classList.contains('correct')) return;
+  zone.classList.remove('drag-over');
+  const char = e.dataTransfer.getData('text/plain') || draggedChar;
+  if (char) handlePlacement(zone, char);
+}
+
+/* ── 11. TAP MOD ── */
+let selectedRune = null;
+function onRuneClick(e) {
+  if (draggedRune) return;
+  const s = e.currentTarget;
+  document.querySelectorAll('.rune-stone').forEach(r => r.style.outline='');
+  if (selectedRune === s) { selectedRune=null; return; }
+  selectedRune = s;
+  s.style.outline = '3px solid var(--gold-glow)';
+  s.style.outlineOffset = '3px';
+  soundPickup();
+}
+function onZoneClick(e) {
+  const zone = e.currentTarget;
+  if (zone.classList.contains('correct') || !selectedRune) return;
+  handlePlacement(zone, selectedRune.dataset.rune);
+  document.querySelectorAll('.rune-stone').forEach(r => r.style.outline='');
+  selectedRune = null;
+}
+
+/* ── 12. TOUCH SÜRÜKLEME ── */
+const ghost = document.getElementById('drag-ghost');
+let touchActiveStone = null;
+
+function onRuneTouchStart(e) {
+  e.preventDefault();
+  const s = e.currentTarget; touchActiveStone = s; draggedChar = s.dataset.rune;
+  soundPickup();
+  const cs = getComputedStyle(s);
+  ghost.className = s.className;
+  ghost.style.cssText = `position:fixed;pointer-events:none;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:.85;transform:translate(-50%,-50%) scale(1.2);width:${s.offsetWidth}px;height:${s.offsetHeight}px;border-radius:50%;font-size:${parseFloat(cs.fontSize)}px;font-family:'Cinzel',serif;color:#fff;background:${cs.background};box-shadow:${cs.boxShadow};`;
+  ghost.textContent = draggedChar;
+  ghost.style.display = 'flex';
+  const t = e.touches[0];
+  ghost.style.left = t.clientX+'px'; ghost.style.top = t.clientY+'px';
+  s.classList.add('dragging');
+}
+function onRuneTouchMove(e) {
+  e.preventDefault();
+  if (!touchActiveStone) return;
+  const t = e.touches[0];
+  ghost.style.left = t.clientX+'px'; ghost.style.top = t.clientY+'px';
+  ghost.style.display='none';
+  const el = document.elementFromPoint(t.clientX, t.clientY);
+  ghost.style.display='flex';
+  document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drag-over'));
+  const zone = el?.closest('.drop-zone');
+  if (zone && !zone.classList.contains('correct')) zone.classList.add('drag-over');
+}
+function onRuneTouchEnd_Stone(e) {
+  e.preventDefault();
+  ghost.style.display='none';
+  if (!touchActiveStone) return;
+  const t = e.changedTouches[0];
+  const el = document.elementFromPoint(t.clientX, t.clientY);
+  const zone = el?.closest('.drop-zone');
+  if (zone && !zone.classList.contains('correct') && draggedChar) {
+    zone.classList.remove('drag-over');
+    handlePlacement(zone, draggedChar);
+  }
+  touchActiveStone.classList.remove('dragging');
+  touchActiveStone = null; draggedChar = null;
+}
+
+/* ── 13. YERLEŞTİRME ── */
+function handlePlacement(zone, char) {
+  if (char === zone.dataset.answer) {
+    zone.textContent = char;
+    zone.classList.add('correct','has-content');
+    soundCorrect(); totalScore += 10; updateScore(); filledCount++;
+    if (filledCount >= totalZones) setTimeout(showChapterComplete, 650);
+  } else {
+    zone.classList.add('wrong');
+    soundWrong();
+    setTimeout(() => zone.classList.remove('wrong'), 600);
+    totalScore = Math.max(0, totalScore-2); updateScore();
+  }
+}
+
+/* ── 14. BÖLÜM/HİKAYE SONU ── */
+function showChapterComplete() {
+  soundVictory(); launchConfetti();
+  const story = STORIES[currentStoryIdx];
+  const isLast = currentChapterIdx >= story.chapters.length - 1;
+  document.getElementById('cmp-icon').textContent = isLast ? '🎉' : '🏆';
+  document.getElementById('complete-title').textContent = isLast ? '📜 Hikaye Tamamlandı!' : `✨ Bölüm ${currentChapterIdx+1} Bitti!`;
+  document.getElementById('complete-msg').textContent   = isLast
+    ? `"${story.title}" parşömenini tamamladın, büyük kahraman!`
+    : 'Bir sonraki bölüm seni bekliyor… Hazır mısın?';
+  const btn = document.getElementById('next-level-btn');
+  btn.textContent = isLast ? '🎊 Hikayeyi Tamamla!' : `Bölüm ${currentChapterIdx+2}'ye Geç ➤`;
+  document.getElementById('level-complete').classList.add('show');
+}
+
+function nextChapter() {
+  const story = STORIES[currentStoryIdx];
+  if (currentChapterIdx >= story.chapters.length - 1) {
+    completedStories.add(currentStoryIdx);
+    document.getElementById('level-complete').classList.remove('show');
+    document.getElementById('final-score-display').textContent = `⭐ ${totalScore}`;
+    document.getElementById('game-over-screen').classList.add('show');
+  } else {
+    currentChapterIdx++;
+    buildChapter(currentStoryIdx, currentChapterIdx);
+  }
+}
+
+/* ── 15. YARDIMCILAR ── */
+function updateScore() { document.getElementById('score-badge').textContent = `⭐ ${totalScore}`; }
+
+function launchConfetti() {
+  const c = document.getElementById('confetti-container');
+  c.innerHTML = '';
+  const colors=['#d4a017','#ffdd55','#c0a0ff','#60c0e0','#e06060','#60e080','#f0c060'];
+  const shapes=['▲','■','●','◆','★'];
+  for (let i=0;i<90;i++) {
+    const p = document.createElement('div');
+    p.className='confetti-piece';
+    p.textContent=shapes[i%shapes.length];
+    p.style.cssText=`left:${Math.random()*100}vw;color:${colors[i%colors.length]};font-size:${8+Math.random()*16}px;animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.8}s;`;
+    c.appendChild(p);
+  }
+  setTimeout(()=>{ c.innerHTML=''; },4500);
+}
+
+/* ── 16. BAŞLATMA ── */
+window.addEventListener('load', () => {
+  setupRuneStones();
+});
+document.addEventListener('touchstart', ensureAudio, { once:true });
+document.addEventListener('mousedown',  ensureAudio, { once:true });
+</script>
+</body>
+</html>
