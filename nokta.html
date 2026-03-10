@@ -327,7 +327,7 @@ html, body {
       </svg>
       <div class="btn-text">⚔ MACERAYA BAŞLA ⚔</div>
     </div>
-    <p class="intro-footer">🎭 10 Fantastik Hikaye &nbsp;·&nbsp; 30 Bölüm &nbsp;·&nbsp; Tüm Cihazlarla Uyumlu</p>
+    <p class="intro-footer">🎭 9 Fantastik Hikaye &nbsp;·&nbsp; 27 Bölüm &nbsp;·&nbsp; Tüm Cihazlarla Uyumlu</p>
   </div>
 </div>
 
@@ -406,93 +406,84 @@ html, body {
 /* ── 1. HİKAYE VERİSİ ── */
 const STORIES = [
   {
-    id:0, title:"Ozanın Yeni Şarkısı", icon:"🎵",
-    desc:"İrfan Ozanı yeni bestesini seslendirmek üzere sahneye çıkıyor…",
+    id:0, title:"Ustanın Bestesi", icon:"🎵",
+    desc:"Genç ozan sahneye çıkıp ilk bestesini seslendirmek üzere…",
     chapters:[
-      { scroll:"Bölüm I — Hazırlık",    text:"İrfan Ozanı sahneye çıkıp eski davulunu[,] sihirli flütünü ve parşömenlerini hazırladı[.]",                    answers:[",","."] },
-      { scroll:"Bölüm II — Kalabalık",  text:"Heyecanla bekleyen kalabalığa doğru gülümsedi[.] Acaba yeni bestesini beğenecekler miydi[?]",                   answers:[".","?"] },
-      { scroll:"Bölüm III — İlk Nota",  text:"Harika[!] Ozan[']ın çaldığı ilk nota tüm kasabayı büyülemeyi başardı[.]",                                        answers:["!","'","."] }
+      { scroll:"Bölüm I — Hazırlık",      text:"Genç ozan sahneye çıkıp lavtasını[,] flütünü ve notalarını hazırladı[.]",                              answers:[",","."] },
+      { scroll:"Bölüm II — Beklenti",     text:"Seyirciler büyük bir heyecanla bekliyordu[.] Acaba bu yeni besteyi sevecekler miydi[?]",               answers:[".","?"] },
+      { scroll:"Bölüm III — İlk Melodi",  text:"Harika[!] Sinan[']ın çaldığı ilk melodi herkesi adeta büyüledi[.]",                                    answers:["!","'","."] }
     ]
   },
   {
-    id:1, title:"Barışın Sembolü", icon:"🕊️",
-    desc:"Antik yıkıntılarda saklı yüzyıllık gizli bir hazine…",
+    id:1, title:"Şifacının Yolculuğu", icon:"🌿",
+    desc:"Şifacı tehlikeli bir ormana doğru yola çıkıyor…",
     chapters:[
-      { scroll:"Bölüm I — Yıkıntılar",  text:"Antik imparatorluğun yıkıntıları arasında gümüş bir kutu[,] paslı bir kılıç ve eski bir kalkan bulduk[.]",     answers:[",","."] },
-      { scroll:"Bölüm II — Zeytin Dalı",text:"Kutunun içinden parlayan bir zeytin dalı çıktı[.] Bu dal efsanevi barışın sembolü müydü[?]",                    answers:[".","?"] },
-      { scroll:"Bölüm III — Hazine",    text:"İnanılmaz[!] İmparator[']un yüz yıllardır saklanan gizli hazinesini sonunda bulmuştuk[.]",                       answers:["!","'","."] }
+      { scroll:"Bölüm I — Orman Yolu",    text:"Şifacı ormana girerken çantasına iksir[,] sargı bezi ve şifalı otlar koydu[.]",                        answers:[",","."] },
+      { scroll:"Bölüm II — Karanlık",     text:"Hava aniden kararmaya ve soğumaya başladı[.] Acaba doğru yolda mı ilerliyordu[?]",                     answers:[".","?"] },
+      { scroll:"Bölüm III — Gölge",       text:"Dikkat et[!] Özlem[']in karşısına devasa bir gölge çıktı[.]",                                          answers:["!","'","."] }
     ]
   },
   {
-    id:2, title:"Ustanın Sihirli Makinesi", icon:"⚙️",
-    desc:"Cüce mucit inanılmaz bir makine inşa ediyor…",
+    id:2, title:"Antik Sır", icon:"🏺",
+    desc:"Arkeologlar tarihin en büyük hazinesini arıyor…",
     chapters:[
-      { scroll:"Bölüm I — Malzemeler",  text:"Cüce mucit masasına renkli ipler[,] dişliler ve tuhaf kristaller koydu[.]",                                      answers:[",","."] },
-      { scroll:"Bölüm II — İnşaat",     text:"Makinesi katman katman sihirli bir kale inşa etmeye başladı[.] Bu küçük alet nasıl bu kadar hızlı çalışıyordu[?]",answers:[".","?"] },
-      { scroll:"Bölüm III — Tehlike",   text:"Dikkat et[!] Usta[']nın makinesi çok ısınıp dumanlar çıkarmaya başladı[.]",                                      answers:["!","'","."] }
+      { scroll:"Bölüm I — Kazı Alanı",    text:"Arkeologlar kazı alanında antik bir kalkan[,] kırık bir kılıç ve gümüş bir kutu buldu[.]",             answers:[",","."] },
+      { scroll:"Bölüm II — Sembol",       text:"Kutunun kapağında eski bir zeytin dalı motifi vardı[.] Bu sembol ne anlama geliyordu[?]",               answers:[".","?"] },
+      { scroll:"Bölüm III — Keşif",       text:"İnanılmaz[!] Roma[']nın en büyük hazinesini sonunda keşfetmişlerdi[.]",                                answers:["!","'","."] }
     ]
   },
   {
-    id:3, title:"Kara Elmas Diyarı", icon:"💎",
-    desc:"Kuzeye uzanan tehlikeli ve efsanevi bir kervan yolculuğu…",
+    id:3, title:"Sahil Kasabası", icon:"⚓",
+    desc:"Limanda fırtına yaklaşırken kaptan tetikte bekliyor…",
     chapters:[
-      { scroll:"Bölüm I — Kervan",      text:"Kuzeye doğru yola çıkan kervan[,] derin vadileri[,] yüksek tepeleri ve coşkun nehirleri aştı[.]",               answers:[",",",","."] },
-      { scroll:"Bölüm II — Dalgalar",   text:"Hırçın dalgalar ahşap gemiyi beşik gibi sallıyordu[.] Kıyıdaki o devasa kaleye ulaşabilecekler miydi[?]",       answers:[".","?"] },
-      { scroll:"Bölüm III — Şato",      text:"Yaşasın[!] Ereğli Şatosu[']nun görkemli surları nihayet ufukta göründü[.]",                                     answers:["!","'","."] }
+      { scroll:"Bölüm I — Liman",         text:"Gemiler limana yanaşırken martılar[,] dalgalar ve rüzgar adeta şarkı söylüyordu[.]",                   answers:[",","."] },
+      { scroll:"Bölüm II — Ufuk",         text:"Kaptan dürbünüyle ufka doğru uzun uzun baktı[.] Fırtına gerçekten yaklaşıyor muydu[?]",               answers:[".","?"] },
+      { scroll:"Bölüm III — Alarm",       text:"Çabuk olun[!] Ereğli[']nin limanındaki tüm tekneleri güvene almalıyız[!]",                             answers:["!","'","!"] }
     ]
   },
   {
-    id:4, title:"Büyücünün İksiri", icon:"🧪",
-    desc:"Büyücü Özlem gizemli görünmezlik iksiri hazırlıyor…",
+    id:4, title:"Uzak Adalar", icon:"🏝️",
+    desc:"Turkuaz sularda unutulmaz bir tatil macerası…",
     chapters:[
-      { scroll:"Bölüm I — Kazan",       text:"Büyücü Özlem dev kazanına ejderha pulu[,] yıldız tozu ve bir damla ay ışığı ekledi[.]",                          answers:[",","."] },
-      { scroll:"Bölüm II — Duman",      text:"Karışım aniden parlak pembe bir duman çıkardı[.] Bu iksir gerçekten de görünmezliği sağlayacak mıydı[?]",        answers:[".","?"] },
-      { scroll:"Bölüm III — Patlama",   text:"Eyvah[!] Şişe[']nin kapağı büyük bir gürültüyle patladı[.]",                                                     answers:["!","'","."] }
+      { scroll:"Bölüm I — Kumsal",        text:"Yolcular sıcak kumsala havlularını[,] şemsiyelerini ve kitaplarını bıraktı[.]",                        answers:[",","."] },
+      { scroll:"Bölüm II — Deniz",        text:"Turkuaz rengi deniz güneşin altında pırıl pırıl parlıyordu[.] Suda yüzen o renkli balık da neydi[?]", answers:[".","?"] },
+      { scroll:"Bölüm III — Mutluluk",    text:"Yaşasın[!] Filipinler[']in bu eşsiz adasında tatil yapmak çok güzeldi[.]",                            answers:["!","'","."] }
     ]
   },
   {
-    id:5, title:"Uzak Adalar", icon:"🏝️",
-    desc:"Cesur kaptan sıcak adalara yelken açıyor…",
+    id:5, title:"Kutu Oyunları Gecesi", icon:"🎲",
+    desc:"Herkes kazanmak için en iyi stratejiyi kuruyor…",
     chapters:[
-      { scroll:"Bölüm I — Hazırlık",    text:"Cesur kaptan sıcak adalara gitmek için haritasını[,] pusulasını ve eski dürbününü hazırladı[.]",                  answers:[",","."] },
-      { scroll:"Bölüm II — Gölge",      text:"Kristal berraklığındaki sularda dev bir gölge belirdi[.] Bu efsanevi deniz canavarı olabilir miydi[?]",           answers:[".","?"] },
-      { scroll:"Bölüm III — Ahtapot",   text:"İmdat[!] Gemi[']nin güvertesine kocaman bir ahtapot kolu çarptı[.]",                                              answers:["!","'","."] }
+      { scroll:"Bölüm I — Hazırlık",      text:"Masanın üzerine haritaları[,] piyonları ve zarları dikkatlice dizdik[.]",                             answers:[",","."] },
+      { scroll:"Bölüm II — Strateji",     text:"Herkes kazanmak için en iyi stratejiyi kuruyordu[.] Bu zorlu oyunun galibi kim olacaktı[?]",           answers:[".","?"] },
+      { scroll:"Bölüm III — Çöküş",       text:"Eyvah[!] Alhambra[']nın en güçlü kalesi az önce büyük bir gürültüyle yıkıldı[.]",                    answers:["!","'","."] }
     ]
   },
   {
-    id:6, title:"İki Nehir Arasındaki Şehir", icon:"🏰",
-    desc:"İki nehrin arasında muhteşem bir şehir kuruluyor…",
+    id:6, title:"Büyülü Orman", icon:"🌳",
+    desc:"Sihirli ışıklarla dolu gizemli bir orman keşfi…",
     chapters:[
-      { scroll:"Bölüm I — İnşaat",      text:"İki nehrin ortasındaki vadiye evler[,] yüksek kuleler[,] geniş pazarlar ve büyük bir saray inşa ettik[.]",       answers:[",",",","."] },
-      { scroll:"Bölüm II — Halk",       text:"Halk yeni kurulan bu görkemli şehirde çok mutluydu[.] Acaba komşu krallık bu duruma ne diyecekti[?]",            answers:[".","?"] },
-      { scroll:"Bölüm III — Söylenti",  text:"Dikkatli olun[!] Casuslar[']ın şehre sızdığına dair söylentiler hızla yayılıyor[.]",                             answers:["!","'","."] }
+      { scroll:"Bölüm I — Orman Halkı",   text:"Ormanın derinliklerinde periler[,] elfler ve konuşan ağaçlar yaşıyordu[.]",                           answers:[",","."] },
+      { scroll:"Bölüm II — Mavi Işık",    text:"Gece olunca her yeri mavi bir ışık kapladı[.] Bu sihirli ışığın kaynağı neresiydi[?]",                answers:[".","?"] },
+      { scroll:"Bölüm III — Tehlike",     text:"Koşun[!] Karadağ[']ın zirvesinden devasa bir ateş topu düşüyor[!]",                                   answers:["!","'","!"] }
     ]
   },
   {
-    id:7, title:"Sualtı Krallığı", icon:"🧜",
-    desc:"Okyanusun derinliklerinde gizli büyülü bir krallık…",
+    id:7, title:"Madencilerin Sırrı", icon:"⛏️",
+    desc:"Tünelin sonunda efsanevi kara elmas gizleniyor…",
     chapters:[
-      { scroll:"Bölüm I — Krallık",     text:"Okyanusun derinliklerindeki krallıkta denizkızları[,] sevimli yunuslar ve parlak balıklar yüzüyordu[.]",         answers:[",","."] },
-      { scroll:"Bölüm II — Mavi Işık",  text:"Karanlık mağaranın içinden tuhaf bir mavi ışık süzüldü[.] Kayıp inci kolye orada mı saklanıyordu[?]",            answers:[".","?"] },
-      { scroll:"Bölüm III — İnci",      text:"Muhteşem[!] Kral[']ın tacını süsleyen o sihirli inci sonunda bulundu[.]",                                         answers:["!","'","."] }
+      { scroll:"Bölüm I — İniş",          text:"İşçiler mağaraya inerken baretlerini[,] kazmalarını ve fenerlerini yanlarına aldı[.]",                 answers:[",","."] },
+      { scroll:"Bölüm II — Keşif",        text:"Tünelin sonunda parlak ve sert bir taş buldular[.] Bu gerçekten efsanevi kara elmas mıydı[?]",         answers:[".","?"] },
+      { scroll:"Bölüm III — Hazine",      text:"Muhteşem[!] Zonguldak[']ın derinliklerinden çıkan bu taş paha biçilemezdi[.]",                        answers:["!","'","."] }
     ]
   },
   {
-    id:8, title:"Metal Golemin Konseri", icon:"🤖",
-    desc:"Dev metal golem müzik sahnesine çıkıyor…",
+    id:8, title:"Büyük Konser", icon:"🎸",
+    desc:"Şehrin en büyük konserinde müzik sel gibi akıyor…",
     chapters:[
-      { scroll:"Bölüm I — Sahne",       text:"Dev golem sahneye çıkıp baterisine[,] elektro gitarına ve ağır mikrofonuna dokundu[.]",                            answers:[",","."] },
-      { scroll:"Bölüm II — Ses",        text:"Çıkardığı yüksek ses tüm ormanı inletti[.] Seyirciler bu gürültülü ve enerjik müziğe dayanabilecek miydi[?]",    answers:[".","?"] },
-      { scroll:"Bölüm III — Dans",      text:"Çılgınca[!] Golem[']in çaldığı soloya bütün orman perileri dans ederek eşlik etmeye başladı[.]",                  answers:["!","'","."] }
-    ]
-  },
-  {
-    id:9, title:"Büyük Turnuva", icon:"🏆",
-    desc:"Efsanevi şampiyona başlıyor — kazanan kim olacak?",
-    chapters:[
-      { scroll:"Bölüm I — Sıralama",    text:"Şampiyonaya katılan keskin nişancı okçular[,] cesur şövalyeler ve bilge büyücüler sıraya dizildi[.]",             answers:[",","."] },
-      { scroll:"Bölüm II — Ödül",       text:"Turnuvanın sonunda en iyi tahmini yapan kişi büyük ödülü kazanacaktı[.] Sence bu zorlu mücadeleden kim galip çıkacak[?]", answers:[".","?"] },
-      { scroll:"Bölüm III — Sürpriz",   text:"İnanılmaz[!] Zayıf görünen savaşçı[']nın son saniyedeki hamlesi herkesi şaşkına çevirdi[.]",                     answers:["!","'","."] }
+      { scroll:"Bölüm I — Stüdyo",        text:"Müzisyenler stüdyoya girip gitarlarını[,] davullarını ve mikrofonlarını kurdu[.]",                     answers:[",","."] },
+      { scroll:"Bölüm II — Ritim",        text:"Ritim giderek hızlanıyor ve sesler yükseliyordu[.] Seyirciler bu enerjiye ayak uydurabilecek miydi[?]",answers:[".","?"] },
+      { scroll:"Bölüm III — Coşku",       text:"Çılgınca[!] Kadıköy[']ün en büyük konserinde herkes durmadan zıplıyordu[.]",                          answers:["!","'","."] }
     ]
   }
 ];
