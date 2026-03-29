@@ -1091,26 +1091,33 @@ document.getElementById('answerInput').addEventListener('keydown',e=>{
 
 // ===== AUDIO ENGINE (Web Audio API) =====
 let AC = null;
+
 function getAC() {
-  if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
+  if (!AC) {
+    AC = new (window.AudioContext || window.webkitAudioContext)();
+  }
   return AC;
 }
-function resumeAC() { const ac = getAC(); if(ac && ac.state === 'suspended') ac.resume(); }
-function resumeAC() { if(AC.state === 'suspended') AC.resume(); }
+
+function resumeAC() {
+  const ctx = getAC();
+  if (ctx.state === 'suspended') ctx.resume();
+}
 
 // --- SFX helpers ---
 function playTone(freq, type, duration, volume=0.18, attack=0.01, decay=0.08) {
   resumeAC();
-  const osc = AC.createOscillator();
-  const gain = AC.createGain();
-  osc.connect(gain); gain.connect(AC.destination);
+  const ctx = getAC();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain); gain.connect(ctx.destination);
   osc.type = type;
-  osc.frequency.setValueAtTime(freq, AC.currentTime);
-  gain.gain.setValueAtTime(0, AC.currentTime);
-  gain.gain.linearRampToValueAtTime(volume, AC.currentTime + attack);
-  gain.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + duration);
-  osc.start(AC.currentTime);
-  osc.stop(AC.currentTime + duration + 0.05);
+  osc.frequency.setValueAtTime(freq, ctx.currentTime);
+  gain.gain.setValueAtTime(0, ctx.currentTime);
+  gain.gain.linearRampToValueAtTime(volume, ctx.currentTime + attack);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + duration + 0.05);
 }
 
 function playClick() {
@@ -1121,72 +1128,76 @@ function playClick() {
 function playCorrect() {
   // Happy ascending chime: C5 → E5 → G5
   resumeAC();
+  const ctx = getAC();
   [[523,0],[659,0.1],[784,0.2]].forEach(([f,t]) => {
-    const osc = AC.createOscillator();
-    const gain = AC.createGain();
-    const filter = AC.createBiquadFilter();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass'; filter.frequency.value = 3000;
-    osc.connect(filter); filter.connect(gain); gain.connect(AC.destination);
+    osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(f, AC.currentTime + t);
-    gain.gain.setValueAtTime(0, AC.currentTime + t);
-    gain.gain.linearRampToValueAtTime(0.22, AC.currentTime + t + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + t + 0.38);
-    osc.start(AC.currentTime + t);
-    osc.stop(AC.currentTime + t + 0.45);
+    osc.frequency.setValueAtTime(f, ctx.currentTime + t);
+    gain.gain.setValueAtTime(0, ctx.currentTime + t);
+    gain.gain.linearRampToValueAtTime(0.22, ctx.currentTime + t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.38);
+    osc.start(ctx.currentTime + t);
+    osc.stop(ctx.currentTime + t + 0.45);
   });
 }
 
 function playWrong() {
   // Low buzzy descend
   resumeAC();
-  const osc = AC.createOscillator();
-  const gain = AC.createGain();
-  osc.connect(gain); gain.connect(AC.destination);
+  const ctx = getAC();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain); gain.connect(ctx.destination);
   osc.type = 'sawtooth';
-  osc.frequency.setValueAtTime(220, AC.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(110, AC.currentTime + 0.25);
-  gain.gain.setValueAtTime(0.13, AC.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.28);
-  osc.start(AC.currentTime);
-  osc.stop(AC.currentTime + 0.32);
+  osc.frequency.setValueAtTime(220, ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.25);
+  gain.gain.setValueAtTime(0.13, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.28);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + 0.32);
 }
 
 function playWoosh() {
   // Spaceship whoosh for next word
   resumeAC();
-  const bufferSize = AC.sampleRate * 0.25;
-  const buffer = AC.createBuffer(1, bufferSize, AC.sampleRate);
+  const ctx = getAC();
+  const bufferSize = ctx.sampleRate * 0.25;
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
   const data = buffer.getChannelData(0);
   for(let i=0;i<bufferSize;i++) data[i] = Math.random()*2-1;
-  const src = AC.createBufferSource();
+  const src = ctx.createBufferSource();
   src.buffer = buffer;
-  const filter = AC.createBiquadFilter();
+  const filter = ctx.createBiquadFilter();
   filter.type = 'bandpass';
-  filter.frequency.setValueAtTime(1200, AC.currentTime);
-  filter.frequency.exponentialRampToValueAtTime(400, AC.currentTime + 0.22);
+  filter.frequency.setValueAtTime(1200, ctx.currentTime);
+  filter.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.22);
   filter.Q.value = 0.8;
-  const gain = AC.createGain();
-  gain.gain.setValueAtTime(0.18, AC.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.25);
-  src.connect(filter); filter.connect(gain); gain.connect(AC.destination);
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.18, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+  src.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
   src.start();
 }
 
 function playFanfare() {
   // End screen celebration: short triumphant arp
   resumeAC();
+  const ctx = getAC();
   [[523,0],[659,0.12],[784,0.24],[1047,0.38]].forEach(([f,t]) => {
-    const osc = AC.createOscillator();
-    const gain = AC.createGain();
-    osc.connect(gain); gain.connect(AC.destination);
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
     osc.type = 'triangle';
-    osc.frequency.setValueAtTime(f, AC.currentTime + t);
-    gain.gain.setValueAtTime(0, AC.currentTime + t);
-    gain.gain.linearRampToValueAtTime(0.2, AC.currentTime + t + 0.03);
-    gain.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + t + 0.5);
-    osc.start(AC.currentTime + t);
-    osc.stop(AC.currentTime + t + 0.55);
+    osc.frequency.setValueAtTime(f, ctx.currentTime + t);
+    gain.gain.setValueAtTime(0, ctx.currentTime + t);
+    gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + t + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.5);
+    osc.start(ctx.currentTime + t);
+    osc.stop(ctx.currentTime + t + 0.55);
   });
 }
 
