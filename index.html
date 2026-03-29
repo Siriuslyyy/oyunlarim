@@ -575,7 +575,7 @@ function buildPage() {
           <div class="game-desc">${game.desc}</div>
           <div class="game-sinif">🎒 ${game.sinif}</div>
         </div>
-        <div class="play-btn" style="background:${cat.iconBg}" onclick="openGame('${game.file}', '${game.name}')">
+        <div class="play-btn" style="background:${cat.iconBg}" data-file="${game.file}" data-name="${game.name}" onclick="openGame(this.dataset.file, this.dataset.name)">
           ▶ Oyna!
         </div>
       `;
