@@ -16,6 +16,43 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'DT','Fredoka',sans
 .ekran{position:fixed;inset:0;z-index:10;display:none;flex-direction:column;align-items:center;justify-content:center;}
 .ekran.aktif{display:flex;}
 
+/* ---- TANITIM ---- */
+#tanitim{background:rgba(4,18,4,.93);}
+#tanitim-ic{
+  display:flex;flex-direction:column;align-items:center;
+  gap:1.2rem;padding:clamp(16px,3vw,32px);
+  max-width:min(88vw,480px);
+}
+#tanitim-kurbaga{
+  font-size:clamp(5rem,14vw,9rem);
+  animation:zipla .85s ease-in-out infinite alternate;
+  filter:drop-shadow(0 4px 16px rgba(0,0,0,.5));
+}
+#konusma-balonu{
+  background:#fff;
+  border-radius:1.4rem;
+  padding:clamp(14px,2.5vw,24px) clamp(18px,3vw,28px);
+  position:relative;
+  box-shadow:0 4px 24px rgba(0,0,0,.4);
+  max-width:min(84vw,440px);
+}
+/* Konuşma balonunun kuyruğu */
+#konusma-balonu::before{
+  content:'';
+  position:absolute;
+  bottom:100%;left:50%;
+  transform:translateX(-50%);
+  border:14px solid transparent;
+  border-bottom-color:#fff;
+}
+#konusma-metin{
+  font-family:'DT','Fredoka',sans-serif;
+  font-size:clamp(1rem,2.4vw,1.45rem);
+  color:#1a3a1a;line-height:1.55;
+  text-align:center;min-height:2em;
+}
+
+
 /* ---- ANA MENÜ ---- */
 #menu{background:rgba(4,18,4,.88);}
 #menu-logo{font-size:clamp(4rem,10vw,7rem);animation:zipla .85s ease-in-out infinite alternate;}
@@ -214,7 +251,19 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'DT','Fredoka',sans
 <div id="kurbaga"><span id="sapka"></span><span id="govde">🐸</span><span id="dil">👅</span></div>
 
 <!-- ANA MENÜ -->
-<div id="menu" class="ekran aktif">
+<!-- TANITIM -->
+<div id="tanitim" class="ekran">
+  <div id="tanitim-ic">
+    <div id="tanitim-kurbaga">🐸</div>
+    <div id="konusma-balonu">
+      <div id="konusma-metin"></div>
+    </div>
+    <button class="menu-btn yesil" id="btn-devam" style="display:none;margin-top:1.2rem;">Devam Et →</button>
+  </div>
+</div>
+
+<!-- ANA MENÜ -->
+<div id="menu" class="ekran">
   <div id="menu-logo">🐸</div>
   <h1>Zıpzıp'ın<br>Ateşböceği Avı</h1>
   <button class="menu-btn yesil" id="btn-oyna">🎮 Oynamaya Başla</button>
@@ -469,12 +518,22 @@ var BOLUMLER = [
   { no:3, adi:'Büyülü Orman',   sayiMin:10, sayiMax:20, sorSayi:5, canli:true,  bg:2 },
 ];
 var URUNLER=[
-  {id:'s1',ad:'Sihirbaz Şapkası', emoji:'🎩', fiyat:3},
-  {id:'s2',ad:'Kral Tacı',        emoji:'👑', fiyat:5},
-  {id:'s3',ad:'Kiraz Şapkası',    emoji:'🍒', fiyat:2},
-  {id:'s4',ad:'Fiyonk Şapkası',   emoji:'🎀', fiyat:4},
-  {id:'s5',ad:'Basketbol Şapkası',emoji:'🏀', fiyat:6},
-  {id:'s6',ad:'Futbol Şapkası',   emoji:'⚽', fiyat:7},
+  {id:'s1', ad:'Sihirbaz Şapkası',  emoji:'🎩', fiyat:3},
+  {id:'s2', ad:'Kral Tacı',          emoji:'👑', fiyat:5},
+  {id:'s3', ad:'Kiraz Şapkası',      emoji:'🍒', fiyat:2},
+  {id:'s4', ad:'Fiyonk Şapkası',     emoji:'🎀', fiyat:4},
+  {id:'s5', ad:'Basketbol Şapkası',  emoji:'🏀', fiyat:6},
+  {id:'s6', ad:'Futbol Şapkası',     emoji:'⚽', fiyat:7},
+  {id:'s7', ad:'Pizza Şapkası',      emoji:'🍕', fiyat:7},
+  {id:'s8', ad:'Voleybol Şapkası',   emoji:'🏐', fiyat:5},
+  {id:'s9', ad:'Yıldız Şapkası',     emoji:'⭐', fiyat:15},
+  {id:'s10',ad:'Gitar Şapkası',      emoji:'🎸', fiyat:10},
+  {id:'s11',ad:'Paten Şapkası',      emoji:'⛸', fiyat:9},
+  {id:'s12',ad:'Tenis Şapkası',      emoji:'🎾', fiyat:8},
+  {id:'s13',ad:'Şimşek Şapkası',     emoji:'⚡', fiyat:20},
+  {id:'s14',ad:'Gökkuşağı Şapkası',  emoji:'🌈', fiyat:20},
+  {id:'s15',ad:'Gezegen Şapkası',    emoji:'🪐', fiyat:50},
+  {id:'s16',ad:'Yüz Puan Şapkası',   emoji:'💯', fiyat:100},
 ];
 
 /* ========================================================
@@ -1095,7 +1154,7 @@ window.addEventListener('resize',function(){
    BUTON BAĞLANTILARI
 ======================================================== */
 // Ana Menü
-$('btn-oyna').addEventListener('click',function(){ ses('tik'); haritaAc(); });
+$('btn-oyna').addEventListener('click',function(){ ses('tik'); tanitimGoster(); });
 $('btn-menu-market').addEventListener('click',function(){ ses('tik'); mAc(); });
 
 // Harita
@@ -1127,6 +1186,7 @@ $('btn-bitis-market').addEventListener('click',function(){ ses('tik'); mAc(); })
 $('btn-bitis-menu').addEventListener('click',function(){
   ses('tik'); bgDegistir(0); ekranGoster('menu');
 });
+/* btn-devam listener tanitimGoster içinde yönetiliyor */
 $('btn-tekrar-oyna').addEventListener('click',function(){
   ses('tik');
   // Haritayı sıfırla — para ve şapkalar korunur
@@ -1141,7 +1201,30 @@ $('btn-tekrar-oyna').addEventListener('click',function(){
 /* ========================================================
    BAŞLAT
 ======================================================== */
+/* ========================================================
+   TANITIM — yazı animasyonu
+======================================================== */
+var TANITIM_METIN = 'Selam, ben Zıpzıp. Ateşböceklerini yakalamam için bana zıplamam gereken sayıyı söyler misin? Sonra da beni geri eve döndürmeyi unutma lütfen. Başarılar!';
+
+function tanitimGoster(){
+  ekranGoster('tanitim');
+  var el = document.getElementById('konusma-metin');
+  var btn = document.getElementById('btn-devam');
+  el.textContent = TANITIM_METIN;
+  btn.style.display = 'block';
+  btn.style.opacity = '1';
+  // Listener'ı her seferinde temiz bağla
+  var yeni = btn.cloneNode(true);
+  btn.parentNode.replaceChild(yeni, btn);
+  yeni.addEventListener('click', function(){
+    ses('tik');
+    haritaAc();
+  });
+}
+
 lsYukle();
 sayacGuncelle();
 sapkaUygula();
+// Sayfa yüklenince ana menüyü göster
+ekranGoster('menu');
 </script>
